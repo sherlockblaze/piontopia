@@ -2,7 +2,8 @@ package handler
 
 import (
 	"net/http"
-	"piontopia/xtopia-web/model"
+
+	"github.com/sherlockblaze/piontopia/xtopia-gateway/model"
 
 	"github.com/unrolled/render"
 )

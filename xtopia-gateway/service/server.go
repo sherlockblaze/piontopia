@@ -1,8 +1,8 @@
 package service
 
 import (
-	"piontopia/xtopia-web/handler"
-	"piontopia/xtopia-web/model"
+	"github.com/sherlockblaze/piontopia/xtopia-gateway/handler"
+	"github.com/sherlockblaze/piontopia/xtopia-gateway/model"
 
 	"github.com/codegangsta/negroni"
 	"github.com/gorilla/mux"
