@@ -2,8 +2,6 @@
 
 Interesting microservices practice
 
-## 组成
-
 ### xtopia-gateway
 
 web server(gateway)
