@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+package proto;
+
+import "user.proto";
+
+service UserServices {
+    rpc CreateUser (User) returns (UserID);
+    rpc DeleteUser (UserID) returns (UserID);
+    rpc CheckoutUser (UserID) returns (User);
+}

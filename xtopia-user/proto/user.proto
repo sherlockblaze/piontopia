@@ -1,0 +1,33 @@
+syntax = "proto3";
+
+import "label.proto";
+import "power.proto";
+import "team.proto";
+
+package proto;
+
+message User {
+    string name = 1;
+    string phone = 2;
+    int32 age = 3;
+    string email = 4;
+    UserFavor favors = 5;
+    Power power = 6;
+    Team team = 7;
+    Labels labels = 8;
+}
+
+message UserFavor {
+    repeated string favors = 1;
+}
+
+message UserID {
+    string ID = 1;
+    Status status = 2;
+}
+
+enum Status {
+    DELETED = 0;
+    CREATED = 1;
+    FROZEN = 2;
+}
