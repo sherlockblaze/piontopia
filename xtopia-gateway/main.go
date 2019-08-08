@@ -2,7 +2,8 @@ package main
 
 import (
 	"os"
-	"piontopia/xtopia-web/service"
+
+	"github.com/sherlockblaze/piontopia/xtopia-gateway/service"
 )
 
 func main() {
