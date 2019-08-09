@@ -1,10 +1,10 @@
 package server
 
 import (
+	"context"
 	"net"
 
 	"github.com/sherlockblaze/piontopia/xtopia-user/proto"
-	"github.com/sherlockblaze/piontopia/xtopia-user/service"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/grpclog"
@@ -14,6 +14,25 @@ const (
 	// Address listening address of server
 	Address = "127.0.0.1:50011"
 )
+
+// Server represents the gRPC server
+type Server struct {
+}
+
+// CreateUser create a user
+func (s *Server) CreateUser(ctx context.Context, user *proto.User) (*proto.User, error) {
+	return nil, nil
+}
+
+// DeleteUser delete a user
+func (s *Server) DeleteUser(ctx context.Context, userID *proto.UserID) (*proto.User, error) {
+	return nil, nil
+}
+
+// CheckoutUser checkout a user's info
+func (s *Server) CheckoutUser(ctx context.Context, userID *proto.UserID) (*proto.User, error) {
+	return nil, nil
+}
 
 // NewServer Start grpc server
 func NewServer() {
@@ -32,7 +51,7 @@ func NewServer() {
 		grpclog.Fatalf("failed to generate credentials %v", err)
 	}
 
-	s := service.Server{}
+	s := Server{}
 
 	grpcServer := grpc.NewServer(grpc.Creds(creds))
 
