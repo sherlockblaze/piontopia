@@ -1,7 +1,7 @@
 package service
 
 import (
-	"github.com/sherlockblaze/piontopia/xtopia-webserver/handler"
+	"piontopia/xtopia-webserver/handler"
 
 	"github.com/codegangsta/negroni"
 	"github.com/gorilla/mux"

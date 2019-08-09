@@ -3,7 +3,7 @@ package main
 import (
 	"os"
 
-	"github.com/sherlockblaze/piontopia/xtopia-webserver/service"
+	"piontopia/xtopia-webserver/service"
 )
 
 func main() {

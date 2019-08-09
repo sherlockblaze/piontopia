@@ -4,7 +4,8 @@ import (
 	"context"
 	"net"
 
-	"github.com/sherlockblaze/piontopia/xtopia-user/proto"
+	"piontopia/xtopia-user/proto"
+
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/grpclog"
