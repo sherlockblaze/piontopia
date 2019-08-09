@@ -1,2 +1,8 @@
-package: piontopia/xtopia-web
-import: []
+package: piontopia/xtopia-webserver
+import:
+- package: github.com/codegangsta/negroni
+  version: ^1.0.0
+- package: github.com/gorilla/mux
+  version: ^1.7.3
+- package: github.com/unrolled/render
+  version: ^1.0.1
