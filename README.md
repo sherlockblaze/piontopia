@@ -2,18 +2,35 @@
 
 Interesting microservices practice
 
-### xtopia-gateway
+## Code
 
-web server(gateway)
+use following command:
 
-### xtopia-mission
+```sh
+cd $GOPATH/src
+git clone https://github.com/sherlockblaze/piontopia.git
+```
+
+## xtopia-webserver
+
+web server
+
+## xtopia-mission
 
 mission services
 
-### xtopia-user
+## xtopia-user
 
 user services
 
-### xtopia-web
+## xtopia-team
+
+team services
+
+## xtopia-serialnumber
+
+serial number generate
+
+## xtopia-web
 
 the front-end
