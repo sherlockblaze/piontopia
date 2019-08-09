@@ -14,7 +14,7 @@ type Server struct {
 // CreateUser create user
 func (s *Server) CreateUser(ctx context.Context, in *proto.User) (*proto.UserID, error) {
 	log.Printf("Receive message %s", in.Name)
-	return &proto.UserID{ID: "sher", Status: 0}, nil
+	return &proto.UserID{ID: "007", Status: 0}, nil
 }
 
 // DeleteUser delete a user
