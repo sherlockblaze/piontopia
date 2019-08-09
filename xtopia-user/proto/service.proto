@@ -2,10 +2,72 @@ syntax = "proto3";
 
 package proto;
 
-import "user.proto";
+message UserID {
+    string ID = 1;
+}
+
+message User {
+    string ID = 1;
+    string name = 2;
+    string phone = 3;
+    int32 age = 4;
+    string email = 5;
+    UserFavor favors = 6;
+    Power power = 7;
+    Team team = 8;
+    Labels labels = 9;
+    Status status = 10;
+}
+
+message Power {
+    string ID = 1;
+    map<uint32, PowerDetail> Powers = 2;
+    PowerKind kind = 3;
+}
+
+message PowerDetail {
+    repeated string PowerDetails = 1;
+}
+
+message Team {
+    string ID = 1;
+}
+
+enum PowerKind {
+    TecPower = 0;
+    SoftPower = 1;
+    OtherPower = 2;
+}
+
+message UserFavor {
+    repeated string favors = 1;
+}
+
+enum Status {
+    DELETED = 0;
+    CREATED = 1;
+    FROZEN = 2;
+}
+
+message Labels {
+    string ID = 1;
+    LabelKind Kind = 2;
+    LabelLevel Level = 3;
+    repeated string Labels = 4;
+}
+
+enum LabelKind {
+    OWN = 0;
+    OTHERS = 1;
+}
+
+enum LabelLevel {
+    USER = 0;
+    TEAM = 1;
+}
 
 service UserServices {
-    rpc CreateUser (User) returns (UserID);
-    rpc DeleteUser (UserID) returns (UserID);
+    rpc CreateUser (User) returns (User);
+    rpc DeleteUser (UserID) returns (User);
     rpc CheckoutUser (UserID) returns (User);
 }

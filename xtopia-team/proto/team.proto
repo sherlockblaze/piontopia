@@ -1,0 +1,43 @@
+syntax = "proto3";
+
+package proto;
+
+message Team {
+    string ID = 1;
+    string parentID = 2;
+    Power power = 3;
+    Labels labels = 4;
+}
+
+message Power {
+    string ID = 1;
+    map<uint32, PowerDetail> Powers = 2;
+    PowerKind kind = 3;
+}
+
+message PowerDetail {
+    repeated string powerdetails = 1;
+}
+
+enum PowerKind {
+    TecPower = 0;
+    SoftPower = 1;
+    OtherPower = 2;
+}
+
+message Labels {
+    string ID = 1;
+    LabelKind Kind = 2;
+    LabelLevel Level = 3;
+    repeated string Labels = 4;
+}
+
+enum LabelKind {
+    OWN = 0;
+    OTHERS = 1;
+}
+
+enum LabelLevel {
+    USER = 0;
+    TEAM = 1;
+}

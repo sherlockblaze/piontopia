@@ -25,18 +25,553 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.ProtoPackageIsVersion3 // please upgrade the proto package
 
+type PowerKind int32
+
+const (
+	PowerKind_TecPower   PowerKind = 0
+	PowerKind_SoftPower  PowerKind = 1
+	PowerKind_OtherPower PowerKind = 2
+)
+
+var PowerKind_name = map[int32]string{
+	0: "TecPower",
+	1: "SoftPower",
+	2: "OtherPower",
+}
+
+var PowerKind_value = map[string]int32{
+	"TecPower":   0,
+	"SoftPower":  1,
+	"OtherPower": 2,
+}
+
+func (x PowerKind) String() string {
+	return proto.EnumName(PowerKind_name, int32(x))
+}
+
+func (PowerKind) EnumDescriptor() ([]byte, []int) {
+	return fileDescriptor_a0b84a42fa06f626, []int{0}
+}
+
+type Status int32
+
+const (
+	Status_DELETED Status = 0
+	Status_CREATED Status = 1
+	Status_FROZEN  Status = 2
+)
+
+var Status_name = map[int32]string{
+	0: "DELETED",
+	1: "CREATED",
+	2: "FROZEN",
+}
+
+var Status_value = map[string]int32{
+	"DELETED": 0,
+	"CREATED": 1,
+	"FROZEN":  2,
+}
+
+func (x Status) String() string {
+	return proto.EnumName(Status_name, int32(x))
+}
+
+func (Status) EnumDescriptor() ([]byte, []int) {
+	return fileDescriptor_a0b84a42fa06f626, []int{1}
+}
+
+type LabelKind int32
+
+const (
+	LabelKind_OWN    LabelKind = 0
+	LabelKind_OTHERS LabelKind = 1
+)
+
+var LabelKind_name = map[int32]string{
+	0: "OWN",
+	1: "OTHERS",
+}
+
+var LabelKind_value = map[string]int32{
+	"OWN":    0,
+	"OTHERS": 1,
+}
+
+func (x LabelKind) String() string {
+	return proto.EnumName(LabelKind_name, int32(x))
+}
+
+func (LabelKind) EnumDescriptor() ([]byte, []int) {
+	return fileDescriptor_a0b84a42fa06f626, []int{2}
+}
+
+type LabelLevel int32
+
+const (
+	LabelLevel_USER LabelLevel = 0
+	LabelLevel_TEAM LabelLevel = 1
+)
+
+var LabelLevel_name = map[int32]string{
+	0: "USER",
+	1: "TEAM",
+}
+
+var LabelLevel_value = map[string]int32{
+	"USER": 0,
+	"TEAM": 1,
+}
+
+func (x LabelLevel) String() string {
+	return proto.EnumName(LabelLevel_name, int32(x))
+}
+
+func (LabelLevel) EnumDescriptor() ([]byte, []int) {
+	return fileDescriptor_a0b84a42fa06f626, []int{3}
+}
+
+type UserID struct {
+	ID                   string   `protobuf:"bytes,1,opt,name=ID,proto3" json:"ID,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *UserID) Reset()         { *m = UserID{} }
+func (m *UserID) String() string { return proto.CompactTextString(m) }
+func (*UserID) ProtoMessage()    {}
+func (*UserID) Descriptor() ([]byte, []int) {
+	return fileDescriptor_a0b84a42fa06f626, []int{0}
+}
+
+func (m *UserID) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_UserID.Unmarshal(m, b)
+}
+func (m *UserID) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_UserID.Marshal(b, m, deterministic)
+}
+func (m *UserID) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_UserID.Merge(m, src)
+}
+func (m *UserID) XXX_Size() int {
+	return xxx_messageInfo_UserID.Size(m)
+}
+func (m *UserID) XXX_DiscardUnknown() {
+	xxx_messageInfo_UserID.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_UserID proto.InternalMessageInfo
+
+func (m *UserID) GetID() string {
+	if m != nil {
+		return m.ID
+	}
+	return ""
+}
+
+type User struct {
+	ID                   string     `protobuf:"bytes,1,opt,name=ID,proto3" json:"ID,omitempty"`
+	Name                 string     `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	Phone                string     `protobuf:"bytes,3,opt,name=phone,proto3" json:"phone,omitempty"`
+	Age                  int32      `protobuf:"varint,4,opt,name=age,proto3" json:"age,omitempty"`
+	Email                string     `protobuf:"bytes,5,opt,name=email,proto3" json:"email,omitempty"`
+	Favors               *UserFavor `protobuf:"bytes,6,opt,name=favors,proto3" json:"favors,omitempty"`
+	Power                *Power     `protobuf:"bytes,7,opt,name=power,proto3" json:"power,omitempty"`
+	Team                 *Team      `protobuf:"bytes,8,opt,name=team,proto3" json:"team,omitempty"`
+	Labels               *Labels    `protobuf:"bytes,9,opt,name=labels,proto3" json:"labels,omitempty"`
+	Status               Status     `protobuf:"varint,10,opt,name=status,proto3,enum=proto.Status" json:"status,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}   `json:"-"`
+	XXX_unrecognized     []byte     `json:"-"`
+	XXX_sizecache        int32      `json:"-"`
+}
+
+func (m *User) Reset()         { *m = User{} }
+func (m *User) String() string { return proto.CompactTextString(m) }
+func (*User) ProtoMessage()    {}
+func (*User) Descriptor() ([]byte, []int) {
+	return fileDescriptor_a0b84a42fa06f626, []int{1}
+}
+
+func (m *User) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_User.Unmarshal(m, b)
+}
+func (m *User) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_User.Marshal(b, m, deterministic)
+}
+func (m *User) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_User.Merge(m, src)
+}
+func (m *User) XXX_Size() int {
+	return xxx_messageInfo_User.Size(m)
+}
+func (m *User) XXX_DiscardUnknown() {
+	xxx_messageInfo_User.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_User proto.InternalMessageInfo
+
+func (m *User) GetID() string {
+	if m != nil {
+		return m.ID
+	}
+	return ""
+}
+
+func (m *User) GetName() string {
+	if m != nil {
+		return m.Name
+	}
+	return ""
+}
+
+func (m *User) GetPhone() string {
+	if m != nil {
+		return m.Phone
+	}
+	return ""
+}
+
+func (m *User) GetAge() int32 {
+	if m != nil {
+		return m.Age
+	}
+	return 0
+}
+
+func (m *User) GetEmail() string {
+	if m != nil {
+		return m.Email
+	}
+	return ""
+}
+
+func (m *User) GetFavors() *UserFavor {
+	if m != nil {
+		return m.Favors
+	}
+	return nil
+}
+
+func (m *User) GetPower() *Power {
+	if m != nil {
+		return m.Power
+	}
+	return nil
+}
+
+func (m *User) GetTeam() *Team {
+	if m != nil {
+		return m.Team
+	}
+	return nil
+}
+
+func (m *User) GetLabels() *Labels {
+	if m != nil {
+		return m.Labels
+	}
+	return nil
+}
+
+func (m *User) GetStatus() Status {
+	if m != nil {
+		return m.Status
+	}
+	return Status_DELETED
+}
+
+type Power struct {
+	ID                   string                  `protobuf:"bytes,1,opt,name=ID,proto3" json:"ID,omitempty"`
+	Powers               map[uint32]*PowerDetail `protobuf:"bytes,2,rep,name=Powers,proto3" json:"Powers,omitempty" protobuf_key:"varint,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
+	Kind                 PowerKind               `protobuf:"varint,3,opt,name=kind,proto3,enum=proto.PowerKind" json:"kind,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}                `json:"-"`
+	XXX_unrecognized     []byte                  `json:"-"`
+	XXX_sizecache        int32                   `json:"-"`
+}
+
+func (m *Power) Reset()         { *m = Power{} }
+func (m *Power) String() string { return proto.CompactTextString(m) }
+func (*Power) ProtoMessage()    {}
+func (*Power) Descriptor() ([]byte, []int) {
+	return fileDescriptor_a0b84a42fa06f626, []int{2}
+}
+
+func (m *Power) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_Power.Unmarshal(m, b)
+}
+func (m *Power) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_Power.Marshal(b, m, deterministic)
+}
+func (m *Power) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Power.Merge(m, src)
+}
+func (m *Power) XXX_Size() int {
+	return xxx_messageInfo_Power.Size(m)
+}
+func (m *Power) XXX_DiscardUnknown() {
+	xxx_messageInfo_Power.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_Power proto.InternalMessageInfo
+
+func (m *Power) GetID() string {
+	if m != nil {
+		return m.ID
+	}
+	return ""
+}
+
+func (m *Power) GetPowers() map[uint32]*PowerDetail {
+	if m != nil {
+		return m.Powers
+	}
+	return nil
+}
+
+func (m *Power) GetKind() PowerKind {
+	if m != nil {
+		return m.Kind
+	}
+	return PowerKind_TecPower
+}
+
+type PowerDetail struct {
+	PowerDetails         []string `protobuf:"bytes,1,rep,name=PowerDetails,proto3" json:"PowerDetails,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *PowerDetail) Reset()         { *m = PowerDetail{} }
+func (m *PowerDetail) String() string { return proto.CompactTextString(m) }
+func (*PowerDetail) ProtoMessage()    {}
+func (*PowerDetail) Descriptor() ([]byte, []int) {
+	return fileDescriptor_a0b84a42fa06f626, []int{3}
+}
+
+func (m *PowerDetail) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_PowerDetail.Unmarshal(m, b)
+}
+func (m *PowerDetail) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_PowerDetail.Marshal(b, m, deterministic)
+}
+func (m *PowerDetail) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_PowerDetail.Merge(m, src)
+}
+func (m *PowerDetail) XXX_Size() int {
+	return xxx_messageInfo_PowerDetail.Size(m)
+}
+func (m *PowerDetail) XXX_DiscardUnknown() {
+	xxx_messageInfo_PowerDetail.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_PowerDetail proto.InternalMessageInfo
+
+func (m *PowerDetail) GetPowerDetails() []string {
+	if m != nil {
+		return m.PowerDetails
+	}
+	return nil
+}
+
+type Team struct {
+	ID                   string   `protobuf:"bytes,1,opt,name=ID,proto3" json:"ID,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *Team) Reset()         { *m = Team{} }
+func (m *Team) String() string { return proto.CompactTextString(m) }
+func (*Team) ProtoMessage()    {}
+func (*Team) Descriptor() ([]byte, []int) {
+	return fileDescriptor_a0b84a42fa06f626, []int{4}
+}
+
+func (m *Team) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_Team.Unmarshal(m, b)
+}
+func (m *Team) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_Team.Marshal(b, m, deterministic)
+}
+func (m *Team) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Team.Merge(m, src)
+}
+func (m *Team) XXX_Size() int {
+	return xxx_messageInfo_Team.Size(m)
+}
+func (m *Team) XXX_DiscardUnknown() {
+	xxx_messageInfo_Team.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_Team proto.InternalMessageInfo
+
+func (m *Team) GetID() string {
+	if m != nil {
+		return m.ID
+	}
+	return ""
+}
+
+type UserFavor struct {
+	Favors               []string `protobuf:"bytes,1,rep,name=favors,proto3" json:"favors,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *UserFavor) Reset()         { *m = UserFavor{} }
+func (m *UserFavor) String() string { return proto.CompactTextString(m) }
+func (*UserFavor) ProtoMessage()    {}
+func (*UserFavor) Descriptor() ([]byte, []int) {
+	return fileDescriptor_a0b84a42fa06f626, []int{5}
+}
+
+func (m *UserFavor) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_UserFavor.Unmarshal(m, b)
+}
+func (m *UserFavor) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_UserFavor.Marshal(b, m, deterministic)
+}
+func (m *UserFavor) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_UserFavor.Merge(m, src)
+}
+func (m *UserFavor) XXX_Size() int {
+	return xxx_messageInfo_UserFavor.Size(m)
+}
+func (m *UserFavor) XXX_DiscardUnknown() {
+	xxx_messageInfo_UserFavor.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_UserFavor proto.InternalMessageInfo
+
+func (m *UserFavor) GetFavors() []string {
+	if m != nil {
+		return m.Favors
+	}
+	return nil
+}
+
+type Labels struct {
+	ID                   string     `protobuf:"bytes,1,opt,name=ID,proto3" json:"ID,omitempty"`
+	Kind                 LabelKind  `protobuf:"varint,2,opt,name=Kind,proto3,enum=proto.LabelKind" json:"Kind,omitempty"`
+	Level                LabelLevel `protobuf:"varint,3,opt,name=Level,proto3,enum=proto.LabelLevel" json:"Level,omitempty"`
+	Labels               []string   `protobuf:"bytes,4,rep,name=Labels,proto3" json:"Labels,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}   `json:"-"`
+	XXX_unrecognized     []byte     `json:"-"`
+	XXX_sizecache        int32      `json:"-"`
+}
+
+func (m *Labels) Reset()         { *m = Labels{} }
+func (m *Labels) String() string { return proto.CompactTextString(m) }
+func (*Labels) ProtoMessage()    {}
+func (*Labels) Descriptor() ([]byte, []int) {
+	return fileDescriptor_a0b84a42fa06f626, []int{6}
+}
+
+func (m *Labels) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_Labels.Unmarshal(m, b)
+}
+func (m *Labels) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_Labels.Marshal(b, m, deterministic)
+}
+func (m *Labels) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Labels.Merge(m, src)
+}
+func (m *Labels) XXX_Size() int {
+	return xxx_messageInfo_Labels.Size(m)
+}
+func (m *Labels) XXX_DiscardUnknown() {
+	xxx_messageInfo_Labels.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_Labels proto.InternalMessageInfo
+
+func (m *Labels) GetID() string {
+	if m != nil {
+		return m.ID
+	}
+	return ""
+}
+
+func (m *Labels) GetKind() LabelKind {
+	if m != nil {
+		return m.Kind
+	}
+	return LabelKind_OWN
+}
+
+func (m *Labels) GetLevel() LabelLevel {
+	if m != nil {
+		return m.Level
+	}
+	return LabelLevel_USER
+}
+
+func (m *Labels) GetLabels() []string {
+	if m != nil {
+		return m.Labels
+	}
+	return nil
+}
+
+func init() {
+	proto.RegisterEnum("proto.PowerKind", PowerKind_name, PowerKind_value)
+	proto.RegisterEnum("proto.Status", Status_name, Status_value)
+	proto.RegisterEnum("proto.LabelKind", LabelKind_name, LabelKind_value)
+	proto.RegisterEnum("proto.LabelLevel", LabelLevel_name, LabelLevel_value)
+	proto.RegisterType((*UserID)(nil), "proto.UserID")
+	proto.RegisterType((*User)(nil), "proto.User")
+	proto.RegisterType((*Power)(nil), "proto.Power")
+	proto.RegisterMapType((map[uint32]*PowerDetail)(nil), "proto.Power.PowersEntry")
+	proto.RegisterType((*PowerDetail)(nil), "proto.PowerDetail")
+	proto.RegisterType((*Team)(nil), "proto.Team")
+	proto.RegisterType((*UserFavor)(nil), "proto.UserFavor")
+	proto.RegisterType((*Labels)(nil), "proto.Labels")
+}
+
 func init() { proto.RegisterFile("service.proto", fileDescriptor_a0b84a42fa06f626) }
 
 var fileDescriptor_a0b84a42fa06f626 = []byte{
-	// 121 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xe2, 0xe2, 0x2d, 0x4e, 0x2d, 0x2a,
-	0xcb, 0x4c, 0x4e, 0xd5, 0x2b, 0x28, 0xca, 0x2f, 0xc9, 0x17, 0x62, 0x05, 0x53, 0x52, 0x5c, 0xa5,
-	0xc5, 0xa9, 0x45, 0x10, 0x21, 0xa3, 0x09, 0x8c, 0x5c, 0x3c, 0xa1, 0xc5, 0xa9, 0x45, 0xc1, 0x10,
-	0x85, 0xc5, 0x42, 0x1a, 0x5c, 0x5c, 0xce, 0x45, 0xa9, 0x89, 0x25, 0xa9, 0x20, 0x51, 0x21, 0x6e,
-	0x88, 0x32, 0x3d, 0x10, 0x47, 0x8a, 0x17, 0x89, 0xe3, 0xe9, 0x22, 0xa4, 0xc5, 0xc5, 0xe5, 0x92,
-	0x9a, 0x93, 0x0a, 0x55, 0x89, 0x2a, 0x89, 0xa9, 0x96, 0xc7, 0x39, 0x23, 0x35, 0x39, 0x3b, 0xbf,
-	0xb4, 0x04, 0x9b, 0x6a, 0x64, 0x6b, 0x92, 0xd8, 0xc0, 0x6c, 0x63, 0x40, 0x00, 0x00, 0x00, 0xff,
-	0xff, 0x3a, 0x1f, 0x1e, 0x42, 0xbd, 0x00, 0x00, 0x00,
+	// 581 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x84, 0x93, 0xc1, 0x6e, 0xda, 0x4e,
+	0x10, 0xc6, 0x59, 0x63, 0x3b, 0xf1, 0x18, 0x90, 0xff, 0xa3, 0xbf, 0xa2, 0x55, 0x2e, 0xb5, 0xdc,
+	0xb4, 0xb5, 0x38, 0x44, 0x2d, 0xbd, 0x44, 0xbd, 0x45, 0xd8, 0x51, 0x51, 0x49, 0xa8, 0x16, 0xa2,
+	0x4a, 0xbd, 0x39, 0x64, 0x53, 0x10, 0x06, 0x23, 0xdb, 0x50, 0xe5, 0xd4, 0x17, 0xe8, 0x6b, 0xf4,
+	0x35, 0xfa, 0x6c, 0xd5, 0xce, 0x5a, 0x8e, 0x53, 0x0e, 0xbd, 0x38, 0xf3, 0xcd, 0xf7, 0xcb, 0xee,
+	0xec, 0xb7, 0x2c, 0x74, 0x0b, 0x99, 0xef, 0x97, 0x73, 0x79, 0xbe, 0xcd, 0xb3, 0x32, 0x43, 0x8b,
+	0xfe, 0x04, 0x1c, 0xec, 0xdb, 0x42, 0xe6, 0xa3, 0x08, 0x7b, 0x60, 0x8c, 0x22, 0xce, 0x7c, 0x16,
+	0x3a, 0xc2, 0x18, 0x45, 0xc1, 0x2f, 0x03, 0x4c, 0x65, 0xfd, 0x6d, 0x20, 0x82, 0xb9, 0x49, 0xd6,
+	0x92, 0x1b, 0xd4, 0xa1, 0x1a, 0xff, 0x07, 0x6b, 0xbb, 0xc8, 0x36, 0x92, 0xb7, 0xa9, 0xa9, 0x05,
+	0x7a, 0xd0, 0x4e, 0xbe, 0x49, 0x6e, 0xfa, 0x2c, 0xb4, 0x84, 0x2a, 0x15, 0x27, 0xd7, 0xc9, 0x32,
+	0xe5, 0x96, 0xe6, 0x48, 0x60, 0x08, 0xf6, 0x43, 0xb2, 0xcf, 0xf2, 0x82, 0xdb, 0x3e, 0x0b, 0xdd,
+	0x81, 0xa7, 0x67, 0x3c, 0x57, 0xdb, 0x5f, 0x29, 0x43, 0x54, 0x3e, 0x06, 0x60, 0x6d, 0xb3, 0xef,
+	0x32, 0xe7, 0x47, 0x04, 0x76, 0x2a, 0xf0, 0xb3, 0xea, 0x09, 0x6d, 0xe1, 0x0b, 0x30, 0x4b, 0x99,
+	0xac, 0xf9, 0x31, 0x21, 0x6e, 0x85, 0xcc, 0x64, 0xb2, 0x16, 0x64, 0xe0, 0x2b, 0xb0, 0xd3, 0xe4,
+	0x4e, 0xa6, 0x05, 0x77, 0x08, 0xe9, 0x56, 0xc8, 0x98, 0x9a, 0xa2, 0x32, 0x15, 0x56, 0x94, 0x49,
+	0xb9, 0x2b, 0x38, 0xf8, 0x2c, 0xec, 0xd5, 0xd8, 0x94, 0x9a, 0xa2, 0x32, 0x83, 0xdf, 0x0c, 0x2c,
+	0xda, 0xff, 0x20, 0xa8, 0xb7, 0x60, 0x93, 0x51, 0x70, 0xc3, 0x6f, 0x87, 0xee, 0x80, 0x37, 0xa7,
+	0xd5, 0xdf, 0x22, 0xde, 0x94, 0xf9, 0xa3, 0xa8, 0x38, 0x3c, 0x03, 0x73, 0xb5, 0xdc, 0xdc, 0x53,
+	0x8a, 0xbd, 0x3a, 0x06, 0x32, 0x3f, 0x2d, 0x37, 0xf7, 0x82, 0xdc, 0xd3, 0x6b, 0x70, 0x1b, 0xff,
+	0xac, 0x52, 0x5e, 0xc9, 0x47, 0xda, 0xb7, 0x2b, 0x54, 0x89, 0x21, 0x58, 0xfb, 0x24, 0xdd, 0xe9,
+	0x2b, 0x72, 0x07, 0xd8, 0x5c, 0x27, 0x92, 0x65, 0xb2, 0x4c, 0x85, 0x06, 0x3e, 0x18, 0x17, 0x2c,
+	0x78, 0x57, 0x2d, 0xa7, 0x1d, 0x0c, 0xa0, 0xd3, 0x90, 0x05, 0x67, 0x7e, 0x3b, 0x74, 0xc4, 0xb3,
+	0x5e, 0x70, 0x02, 0xa6, 0xca, 0xf3, 0xe0, 0x37, 0xf3, 0x12, 0x9c, 0xfa, 0xce, 0xf0, 0xa4, 0xbe,
+	0x55, 0xbd, 0x44, 0xa5, 0x82, 0x1f, 0x60, 0xeb, 0xa4, 0x0f, 0x02, 0x3b, 0x03, 0x53, 0x1d, 0x93,
+	0xc6, 0x7e, 0x3a, 0x3e, 0xc1, 0xfa, 0xf8, 0xea, 0x8b, 0x6f, 0xc0, 0x1a, 0xcb, 0xbd, 0x4c, 0xab,
+	0x94, 0xfe, 0x6b, 0x62, 0x64, 0x08, 0xed, 0xab, 0x01, 0xf4, 0x46, 0xdc, 0xd4, 0x03, 0x68, 0xd5,
+	0xbf, 0x00, 0xa7, 0x8e, 0x14, 0x3b, 0x70, 0x3c, 0x93, 0x73, 0xd2, 0x5e, 0x0b, 0xbb, 0xe0, 0x4c,
+	0xb3, 0x87, 0x52, 0x4b, 0x86, 0x3d, 0x80, 0x49, 0xb9, 0x90, 0xb9, 0xd6, 0x46, 0xff, 0x1c, 0x6c,
+	0x7d, 0xfb, 0xe8, 0xc2, 0x51, 0x14, 0x8f, 0xe3, 0x59, 0x1c, 0x79, 0x2d, 0x25, 0x86, 0x22, 0xbe,
+	0x54, 0x82, 0x21, 0x80, 0x7d, 0x25, 0x26, 0x5f, 0xe3, 0x1b, 0xcf, 0xe8, 0xfb, 0xe0, 0xd4, 0xd3,
+	0xe3, 0x11, 0xb4, 0x27, 0x5f, 0x6e, 0xbc, 0x96, 0x22, 0x26, 0xb3, 0x8f, 0xb1, 0x98, 0x7a, 0xac,
+	0xef, 0x03, 0x3c, 0x0d, 0x8e, 0xc7, 0x60, 0xde, 0x4e, 0x63, 0xe1, 0xb5, 0x54, 0x35, 0x8b, 0x2f,
+	0xaf, 0x3d, 0x36, 0xf8, 0xc9, 0xa0, 0xa3, 0x42, 0x9d, 0xea, 0xe7, 0x5b, 0xe0, 0x6b, 0x80, 0x61,
+	0x2e, 0x93, 0x52, 0xd2, 0xeb, 0x74, 0x1b, 0x6f, 0xe5, 0xb4, 0x29, 0x30, 0x04, 0x88, 0x64, 0x2a,
+	0x2b, 0xae, 0xdb, 0xb0, 0x46, 0xd1, 0x73, 0xb2, 0x0f, 0x9d, 0xe1, 0x42, 0xce, 0x57, 0xd9, 0xae,
+	0xfc, 0x17, 0x7b, 0x67, 0x53, 0xfd, 0xfe, 0x4f, 0x00, 0x00, 0x00, 0xff, 0xff, 0x05, 0x44, 0xf6,
+	0x4b, 0x4f, 0x04, 0x00, 0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -51,8 +586,8 @@ const _ = grpc.SupportPackageIsVersion4
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type UserServicesClient interface {
-	CreateUser(ctx context.Context, in *User, opts ...grpc.CallOption) (*UserID, error)
-	DeleteUser(ctx context.Context, in *UserID, opts ...grpc.CallOption) (*UserID, error)
+	CreateUser(ctx context.Context, in *User, opts ...grpc.CallOption) (*User, error)
+	DeleteUser(ctx context.Context, in *UserID, opts ...grpc.CallOption) (*User, error)
 	CheckoutUser(ctx context.Context, in *UserID, opts ...grpc.CallOption) (*User, error)
 }
 
@@ -64,8 +599,8 @@ func NewUserServicesClient(cc *grpc.ClientConn) UserServicesClient {
 	return &userServicesClient{cc}
 }
 
-func (c *userServicesClient) CreateUser(ctx context.Context, in *User, opts ...grpc.CallOption) (*UserID, error) {
-	out := new(UserID)
+func (c *userServicesClient) CreateUser(ctx context.Context, in *User, opts ...grpc.CallOption) (*User, error) {
+	out := new(User)
 	err := c.cc.Invoke(ctx, "/proto.UserServices/CreateUser", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -73,8 +608,8 @@ func (c *userServicesClient) CreateUser(ctx context.Context, in *User, opts ...g
 	return out, nil
 }
 
-func (c *userServicesClient) DeleteUser(ctx context.Context, in *UserID, opts ...grpc.CallOption) (*UserID, error) {
-	out := new(UserID)
+func (c *userServicesClient) DeleteUser(ctx context.Context, in *UserID, opts ...grpc.CallOption) (*User, error) {
+	out := new(User)
 	err := c.cc.Invoke(ctx, "/proto.UserServices/DeleteUser", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -93,8 +628,8 @@ func (c *userServicesClient) CheckoutUser(ctx context.Context, in *UserID, opts 
 
 // UserServicesServer is the server API for UserServices service.
 type UserServicesServer interface {
-	CreateUser(context.Context, *User) (*UserID, error)
-	DeleteUser(context.Context, *UserID) (*UserID, error)
+	CreateUser(context.Context, *User) (*User, error)
+	DeleteUser(context.Context, *UserID) (*User, error)
 	CheckoutUser(context.Context, *UserID) (*User, error)
 }
 
@@ -102,10 +637,10 @@ type UserServicesServer interface {
 type UnimplementedUserServicesServer struct {
 }
 
-func (*UnimplementedUserServicesServer) CreateUser(ctx context.Context, req *User) (*UserID, error) {
+func (*UnimplementedUserServicesServer) CreateUser(ctx context.Context, req *User) (*User, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateUser not implemented")
 }
-func (*UnimplementedUserServicesServer) DeleteUser(ctx context.Context, req *UserID) (*UserID, error) {
+func (*UnimplementedUserServicesServer) DeleteUser(ctx context.Context, req *UserID) (*User, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteUser not implemented")
 }
 func (*UnimplementedUserServicesServer) CheckoutUser(ctx context.Context, req *UserID) (*User, error) {
