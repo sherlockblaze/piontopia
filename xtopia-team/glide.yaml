@@ -1,4 +1,4 @@
-package: piontopia/xtopia-user
+package: piontopia/xtopia-team
 import:
 - package: google.golang.org/grpc
 - package: google.golang.org/genproto

@@ -11,6 +11,16 @@ cd $GOPATH/src
 git clone https://github.com/sherlockblaze/piontopia.git
 ```
 
+## Pull Dependencies
+
+start ss first, then use following command:
+
+```
+export http_proxy=socks5://localhost:port
+export https_proxy=socks5://localhost:port
+glide up
+```
+
 ## xtopia-webserver
 
 web server
