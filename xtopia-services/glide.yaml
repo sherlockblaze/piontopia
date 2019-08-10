@@ -1,0 +1,3 @@
+package: piontopia/xtopia-services
+import:
+- package: go.etcd.io/etcd/clientv3
