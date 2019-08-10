@@ -2,7 +2,7 @@
 
 The User services
 
-## Dependices
+## Dependencies
 
 Use following command:
 
