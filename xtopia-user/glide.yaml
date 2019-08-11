@@ -1,5 +1,0 @@
-package: piontopia/xtopia-user
-import:
-- package: google.golang.org/grpc
-- package: google.golang.org/genproto
-- package: github.com/stretchr/testify
