@@ -1,4 +1,4 @@
-package etcdservice
+package services
 
 import (
 	"context"
