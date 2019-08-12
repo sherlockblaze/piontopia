@@ -27,7 +27,7 @@ func NewResolver(etcdAddr string) resolver.Builder {
 
 func (r *etcdResolver) Build(target resolver.Target, cc resolver.ClientConn, opts resolver.BuildOption) (resolver.Resolver, error) {
 	var err error
-	//构建etcd client
+
 	if cli == nil {
 		cli, err = clientv3.New(clientv3.Config{
 			Endpoints:   strings.Split(r.rawAddr, ";"),
@@ -88,7 +88,6 @@ func (r *etcdResolver) watch(keyPrefix string) {
 					r.cc.NewAddress(addrList)
 				}
 			}
-			//log.Printf("%s %q : %q\n", ev.Type, ev.Kv.Key, ev.Kv.Value)
 		}
 	}
 }

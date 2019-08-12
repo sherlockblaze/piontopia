@@ -30,7 +30,6 @@ func Register(etcdAddr, name string, addr string, ttl int64) error {
 	go func() {
 		for {
 			getResp, err := cli.Get(context.Background(), "/"+schema+"/"+name+"/"+addr)
-			//fmt.Printf("getResp:%+v\n",getResp)
 			if err != nil {
 				log.Println(err)
 				fmt.Printf("Register:%s", err)
@@ -41,7 +40,7 @@ func Register(etcdAddr, name string, addr string, ttl int64) error {
 					fmt.Printf("keep alive:%s", err)
 				}
 			} else {
-				//fmt.Printf("getResp:%+v, do nothing\n",getResp)
+				// do nothing now
 			}
 
 			<-ticker.C
@@ -57,7 +56,6 @@ func withAlive(name string, addr string, ttl int64) error {
 		return err
 	}
 
-	//fmt.Printf("key:%v\n", "/"+schema+"/"+name+"/"+addr)
 	_, err = cli.Put(context.Background(), "/"+schema+"/"+name+"/"+addr, addr, clientv3.WithLease(leaseResp.ID))
 	if err != nil {
 		fmt.Printf("put etcd error:%s", err)
