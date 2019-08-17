@@ -1,4 +1,4 @@
-package etcdservice
+package register
 
 import (
 	"context"
@@ -10,45 +10,53 @@ import (
 	"go.etcd.io/etcd/clientv3"
 )
 
-// Register register a service
-func Register(etcdAddr, name string, addr string, ttl int64) error {
+// EtcdServiceRegister etcd register
+type EtcdServiceRegister struct {
+	EtcdAddr    string
+	ServiceName string
+	ServiceAddr string
+	Timeout     uint32
+	TTL         int64
+}
+
+// Register Etcd service register
+func (sr *EtcdServiceRegister) Register() error {
 	var err error
 
 	if cli == nil {
 		cli, err = clientv3.New(clientv3.Config{
-			Endpoints:   strings.Split(etcdAddr, ";"),
-			DialTimeout: 15 * time.Second,
+			Endpoints:   strings.Split(sr.EtcdAddr, ";"),
+			DialTimeout: time.Duration(sr.Timeout) * time.Second,
 		})
 		if err != nil {
-			fmt.Printf("connect to etcd err:%s", err)
+			// TODO: log
 			return err
 		}
 	}
 
-	ticker := time.NewTicker(time.Second * time.Duration(ttl))
+	ticker := time.NewTicker(time.Second * time.Duration(sr.TTL))
 
 	go func() {
 		for {
-			getResp, err := cli.Get(context.Background(), "/"+schema+"/"+name+"/"+addr)
-			//fmt.Printf("getResp:%+v\n",getResp)
+			getResp, err := cli.Get(context.Background(), "/"+schema+"/"+sr.ServiceName+"/"+sr.ServiceAddr)
+
 			if err != nil {
 				log.Println(err)
 				fmt.Printf("Register:%s", err)
 			} else if getResp.Count == 0 {
-				err = withAlive(name, addr, ttl)
+				err = withAlive(sr.ServiceName, sr.ServiceAddr, sr.TTL)
 				if err != nil {
-					log.Println(err)
-					fmt.Printf("keep alive:%s", err)
+					// TODOL: log
 				}
 			} else {
-				//fmt.Printf("getResp:%+v, do nothing\n",getResp)
+				// do nothing now
 			}
 
 			<-ticker.C
 		}
 	}()
 
-	return nil
+	return err
 }
 
 func withAlive(name string, addr string, ttl int64) error {
@@ -57,7 +65,6 @@ func withAlive(name string, addr string, ttl int64) error {
 		return err
 	}
 
-	//fmt.Printf("key:%v\n", "/"+schema+"/"+name+"/"+addr)
 	_, err = cli.Put(context.Background(), "/"+schema+"/"+name+"/"+addr, addr, clientv3.WithLease(leaseResp.ID))
 	if err != nil {
 		fmt.Printf("put etcd error:%s", err)
@@ -73,8 +80,9 @@ func withAlive(name string, addr string, ttl int64) error {
 }
 
 // UnRegister remove service from etcd
-func UnRegister(name string, addr string) {
+func (sr *EtcdServiceRegister) UnRegister() error {
 	if cli != nil {
-		cli.Delete(context.Background(), "/"+schema+"/"+name+"/"+addr)
+		cli.Delete(context.Background(), "/"+schema+"/"+sr.ServiceName+"/"+sr.ServiceAddr)
 	}
+	return nil
 }
