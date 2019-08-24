@@ -2,6 +2,10 @@ package main
 
 import "fmt"
 
+/**
+Go中指针的理解与实验
+**/
+
 // User 开放的结构体需要有注释
 type User struct {
 	id   int
