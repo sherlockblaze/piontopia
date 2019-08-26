@@ -4,6 +4,7 @@ import (
 	"io/ioutil"
 	"log" // 后期改成用库中的logger
 
+	"gopkg.in/validator.v2"
 	"gopkg.in/yaml.v2"
 )
 
@@ -19,6 +20,11 @@ func LoadYAML(path string, out interface{}) error {
 
 	if err != nil {
 		log.Fatalf("error: %v", err)
+		return err
+	}
+
+	err = validator.Validate(out)
+	if err != nil {
 		return err
 	}
 

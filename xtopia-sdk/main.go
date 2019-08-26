@@ -1,5 +1,7 @@
 package main
 
+import "piontopia/xtopia-sdk/golang/yaml"
+
 type TestA struct {
 	Key1 string
 	Key2 struct {
@@ -10,5 +12,5 @@ type TestA struct {
 
 func main() {
 	s := TestA{}
-	conf.Parse("test.yaml", s)
+	yaml.LoadYAML("test.yaml", s)
 }
