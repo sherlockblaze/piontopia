@@ -8,7 +8,7 @@ import (
 )
 
 /**
-Parse reading and parsing a yaml config file
+LoadYAML reading and parsing a yaml config file
 @param path : a yaml file path
 @param out : the address of yaml struct instance
 @return void.
