@@ -13,15 +13,17 @@ Parse reading and parsing a yaml config file
 @param out : the address of yaml struct instance
 @return void.
 **/
-func Parse(path string, out interface{}) {
+func LoadYAML(path string, out interface{}) error {
 
-	err := yaml.Unmarshal(read(path), &out)
+	err := yaml.Unmarshal(read(path), out)
 
 	if err != nil {
 		log.Fatalf("error: %v", err)
+		return err
 	}
 
 	log.Printf("DEBUG | your yaml conf: %v", out)
+	return nil
 }
 
 func read(path string) []byte {
