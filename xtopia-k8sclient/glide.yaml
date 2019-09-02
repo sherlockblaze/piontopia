@@ -1,0 +1,17 @@
+package: k8s-client
+import:
+- package: github.com/codegangsta/negroni
+- package: github.com/gorilla/mux
+- package: github.com/sirupsen/logrus
+- package: github.com/unrolled/render
+- package: gopkg.in/natefinch/lumberjack.v2
+- package: gopkg.in/validator.v2
+- package: gopkg.in/yaml.v2
+- package: k8s.io/client-go
+  subpackages:
+  - kubernetes
+  - rest
+testImport:
+- package: github.com/stretchr/testify
+  subpackages:
+  - assert
