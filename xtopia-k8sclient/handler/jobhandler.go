@@ -6,8 +6,8 @@ import (
 	"github.com/unrolled/render"
 )
 
-// CreateDeployment create deployment
-func CreateDeployment(formatter *render.Render) http.HandlerFunc {
+// CreateJob create job
+func CreateJob(formatter *render.Render) http.HandlerFunc {
 	return func(w http.ResponseWriter, req *http.Request) {
 		formatter.JSON(w, http.StatusOK,
 			struct {
@@ -16,8 +16,8 @@ func CreateDeployment(formatter *render.Render) http.HandlerFunc {
 	}
 }
 
-// GetDeployment get target deployment
-func GetDeployment(formatter *render.Render) http.HandlerFunc {
+// GetJob get target job
+func GetJob(formatter *render.Render) http.HandlerFunc {
 	return func(w http.ResponseWriter, req *http.Request) {
 		formatter.JSON(w, http.StatusOK,
 			struct {
@@ -26,8 +26,8 @@ func GetDeployment(formatter *render.Render) http.HandlerFunc {
 	}
 }
 
-// UpdateDeployment update deployment
-func UpdateDeployment(formatter *render.Render) http.HandlerFunc {
+// UpdateJob update job
+func UpdateJob(formatter *render.Render) http.HandlerFunc {
 	return func(w http.ResponseWriter, req *http.Request) {
 		formatter.JSON(w, http.StatusOK,
 			struct {
@@ -36,8 +36,8 @@ func UpdateDeployment(formatter *render.Render) http.HandlerFunc {
 	}
 }
 
-// DeleteDeployment delete deployment
-func DeleteDeployment(formatter *render.Render) http.HandlerFunc {
+// DeleteJob delete job
+func DeleteJob(formatter *render.Render) http.HandlerFunc {
 	return func(w http.ResponseWriter, req *http.Request) {
 		formatter.JSON(w, http.StatusOK,
 			struct {
@@ -46,8 +46,8 @@ func DeleteDeployment(formatter *render.Render) http.HandlerFunc {
 	}
 }
 
-// ListDeployment list deployment
-func ListDeployment(formatter *render.Render) http.HandlerFunc {
+// ListJob list job
+func ListJob(formatter *render.Render) http.HandlerFunc {
 	return func(w http.ResponseWriter, req *http.Request) {
 		formatter.JSON(w, http.StatusOK,
 			struct {

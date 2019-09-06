@@ -1,109 +1,122 @@
 package client
 
 import (
-	"fmt"
 	"log"
 
 	appsv1 "k8s.io/api/apps/v1"
-	apiv1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	clientv1 "k8s.io/client-go/kubernetes/typed/apps/v1"
 	"k8s.io/client-go/util/retry"
 )
 
-var deploymentsClient clientv1.DeploymentInterface
-
-func init() {
-	deploymentsClient = k8sclient.AppsV1().Deployments(apiv1.NamespaceDefault)
+/*
+createDeploymentClient create deployment client by project
+@param project
+**/
+func createDeploymentClient(namespace string) clientv1.DeploymentInterface {
+	return k8sclient.AppsV1().Deployments(namespace)
 }
 
-var deployment = &appsv1.Deployment{
-	ObjectMeta: metav1.ObjectMeta{
-		Name: "demo-deployment",
-	},
-	Spec: appsv1.DeploymentSpec{
-		Replicas: int32Ptr(2),
-		Selector: &metav1.LabelSelector{
-			MatchLabels: map[string]string{
-				"app": "demo",
-			},
-		},
-		Template: apiv1.PodTemplateSpec{
-			ObjectMeta: metav1.ObjectMeta{
-				Labels: map[string]string{
-					"app": "demo",
-				},
-			},
-			Spec: apiv1.PodSpec{
-				Containers: []apiv1.Container{
-					{
-						Name:  "web",
-						Image: "nginx:1.12",
-						Ports: []apiv1.ContainerPort{
-							{
-								Name:          "http",
-								Protocol:      apiv1.ProtocolTCP,
-								ContainerPort: 80,
-							},
-						},
-					},
-				},
-			},
-		},
-	},
-}
-
-// CreateDeployment create deployment
-func CreateDeployment() {
-	log.Println("Creating deployment...")
+/*
+CreateDeployment create deployment
+@param project
+@param deployment
+**/
+func CreateDeployment(project string, deployment *appsv1.Deployment) (*appsv1.Deployment, error) {
+	log.Printf("creating deployment [%s] in project [%s]...", deployment.Name, project)
+	deploymentsClient := createDeploymentClient(project)
 	result, err := deploymentsClient.Create(deployment)
 	if err != nil {
-		panic(err)
+		log.Printf("failed to create deployment [%s] in project [%s], error: [%s]", deployment.Name, project, err.Error())
+		return nil, err
 	}
-	log.Printf("Create deployment %q.\n", result.GetObjectMeta().GetName())
+	log.Printf("deployment [%s] created in project [%s].", result.GetObjectMeta().GetName(), project)
+	return result, nil
 }
 
-// ListDeployment list deployment
-func ListDeployment() {
-	log.Printf("Listing deployment in namespace %q:\n", apiv1.NamespaceDefault)
-	list, err := deploymentsClient.List(metav1.ListOptions{})
+/*
+ListDeployment list deployment
+@param project
+@param limit
+@param fieldSelector
+@param labelSelector
+**/
+func ListDeployment(project, fieldSelector, labelSelector string, limit int64) (*appsv1.DeploymentList, error) {
+	log.Printf("listing deployment in project [%s]", project)
+	deploymentsClient := createDeploymentClient(project)
+	listOptions := metav1.ListOptions{
+		Limit:         limit,
+		FieldSelector: fieldSelector,
+		LabelSelector: labelSelector,
+	}
+	list, err := deploymentsClient.List(listOptions)
 	if err != nil {
-		panic(err)
+		log.Fatalf("cannot get deployment list in project [%s], error: %s", project, err.Error())
+		return nil, err
 	}
-	for _, d := range list.Items {
-		log.Printf(" * %s (%d replicas)\n", d.Name, *d.Spec.Replicas)
-	}
+	return list, nil
 }
 
-// UpdateDeployment update deployment
-func UpdateDeployment() {
-	log.Println("Updating deployment")
-	retryErr := retry.RetryOnConflict(retry.DefaultRetry, func() error {
-		result, getErr := deploymentsClient.Get("demo-deployment", metav1.GetOptions{})
-		if getErr != nil {
-			panic(fmt.Errorf("Failed to get latest version of Deployment: %v", getErr))
+/*
+GetDeployment get target deployment by name
+@param deploymentName
+@param project
+**/
+func GetDeployment(deploymentName, project string) (*appsv1.Deployment, error) {
+	log.Printf("getting deployment [%s] in project [%s]", deploymentName, project)
+	deploymentsClient := createDeploymentClient(project)
+	result, err := deploymentsClient.Get(deploymentName, metav1.GetOptions{})
+	if err != nil {
+		log.Fatalf("failed to get latest version of deployment [%s] in project [%s], error: [%s]", deploymentName, project, err.Error())
+		return nil, err
+	}
+	return result, nil
+}
+
+/*
+UpdateDeployment update a target deployment
+@param project
+@param deployment
+**/
+func UpdateDeployment(project string, deployment *appsv1.Deployment) (*appsv1.Deployment, error) {
+	log.Printf("updating deployment [%s] in project [%s]", deployment.Name, project)
+	var updatedDeployment *appsv1.Deployment
+	deploymentsClient := createDeploymentClient(project)
+	err := retry.RetryOnConflict(retry.DefaultRetry, func() error {
+		result, err := deploymentsClient.Get(deployment.Name, metav1.GetOptions{})
+		if err != nil {
+			log.Fatalf("failed to update deployment [%s] in project [%s], failed to get lastest version of deployment [%s], error: [%s]]", deployment.Name, project, deployment.Name, err.Error())
+			return err
 		}
-		result.Spec.Replicas = int32Ptr(1)
-
-		result.Spec.Template.Spec.Containers[0].Image = "nginx:1.13"
-		_, updateErr := deploymentsClient.Update(result)
-		return updateErr
+		// TODO: compare and replace
+		updatedDeployment, err = deploymentsClient.Update(result)
+		return err
 	})
-	if retryErr != nil {
-		panic(fmt.Errorf("Update failed: %v", retryErr))
+	if err != nil {
+		log.Fatalf("failed to update deployment [%s] in project [%s], error: [%s]", deployment.Name, project, err.Error())
+		return nil, err
 	}
-	log.Println("Updated deployment...")
+	log.Printf("deployment [%s] in project [%s] updated", updatedDeployment.Name, project)
+	return updatedDeployment, nil
 }
 
-// DeleteDeployment delete deployment
-func DeleteDeployment() {
+/*
+DeleteDeployment delete target deployment
+@param project
+@param deploymentName
+**/
+func DeleteDeployment(project, deploymentName string) error {
+	log.Printf("deleting deployment [%s] in project [%s]", deploymentName, project)
 	deletePolicy := metav1.DeletePropagationForeground
-	if err := deploymentsClient.Delete("demo-deployment", &metav1.DeleteOptions{
+	deploymentsClient := createDeploymentClient(project)
+	if err := deploymentsClient.Delete(deploymentName, &metav1.DeleteOptions{
 		PropagationPolicy: &deletePolicy,
 	}); err != nil {
-		panic(err)
+		log.Fatalf("failed to delete deployment [%s] in project [%s], error: [%s]", deploymentName, project, err.Error())
+		return err
 	}
-	fmt.Println("Deleted deployment.")
+	log.Fatalf("deployment [%s] in project [%s] deleted", deploymentName, project)
+	return nil
 }
 
 func int32Ptr(i int32) *int32 {

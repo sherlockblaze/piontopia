@@ -6,8 +6,8 @@ import (
 	"github.com/unrolled/render"
 )
 
-// CreateDeployment create deployment
-func CreateDeployment(formatter *render.Render) http.HandlerFunc {
+// CreateCronJob create cronjob
+func CreateCronJob(formatter *render.Render) http.HandlerFunc {
 	return func(w http.ResponseWriter, req *http.Request) {
 		formatter.JSON(w, http.StatusOK,
 			struct {
@@ -16,8 +16,8 @@ func CreateDeployment(formatter *render.Render) http.HandlerFunc {
 	}
 }
 
-// GetDeployment get target deployment
-func GetDeployment(formatter *render.Render) http.HandlerFunc {
+// GetCronJob get target cronjob
+func GetCronJob(formatter *render.Render) http.HandlerFunc {
 	return func(w http.ResponseWriter, req *http.Request) {
 		formatter.JSON(w, http.StatusOK,
 			struct {
@@ -26,8 +26,8 @@ func GetDeployment(formatter *render.Render) http.HandlerFunc {
 	}
 }
 
-// UpdateDeployment update deployment
-func UpdateDeployment(formatter *render.Render) http.HandlerFunc {
+// UpdateCronJob update cronjob
+func UpdateCronJob(formatter *render.Render) http.HandlerFunc {
 	return func(w http.ResponseWriter, req *http.Request) {
 		formatter.JSON(w, http.StatusOK,
 			struct {
@@ -36,8 +36,8 @@ func UpdateDeployment(formatter *render.Render) http.HandlerFunc {
 	}
 }
 
-// DeleteDeployment delete deployment
-func DeleteDeployment(formatter *render.Render) http.HandlerFunc {
+// DeleteCronJob delete cronjob
+func DeleteCronJob(formatter *render.Render) http.HandlerFunc {
 	return func(w http.ResponseWriter, req *http.Request) {
 		formatter.JSON(w, http.StatusOK,
 			struct {
@@ -46,8 +46,8 @@ func DeleteDeployment(formatter *render.Render) http.HandlerFunc {
 	}
 }
 
-// ListDeployment list deployment
-func ListDeployment(formatter *render.Render) http.HandlerFunc {
+// ListCronJob list cronjob
+func ListCronJob(formatter *render.Render) http.HandlerFunc {
 	return func(w http.ResponseWriter, req *http.Request) {
 		formatter.JSON(w, http.StatusOK,
 			struct {

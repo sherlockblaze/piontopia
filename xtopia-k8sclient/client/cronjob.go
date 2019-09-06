@@ -1,36 +1,121 @@
 package client
 
 import (
+	"log"
+
 	batchbetav1 "k8s.io/api/batch/v1beta1"
-	apiv1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	clientbetaV1 "k8s.io/client-go/kubernetes/typed/batch/v1beta1"
+	"k8s.io/client-go/util/retry"
 )
 
-var cronClient clientbetaV1.CronJobInterface
-
-func init() {
-	cronClient = k8sclient.BatchV1beta1().CronJobs(apiv1.NamespaceDefault)
+/*
+createCronClient create cron job client by project
+@param project
+**/
+func createCronClient(project string) clientbetaV1.CronJobInterface {
+	return k8sclient.BatchV1beta1().CronJobs(project)
 }
 
-var cornExample = &batchbetav1.CronJob{}
-
-// CreateCronJob create cronjob
-func CreateCronJob() {
-	cronClient.Create(cornExample)
+/*
+CreateCronJob create a cronjob
+@param project
+@param cronjob
+**/
+func CreateCronJob(project string, cronJob *batchbetav1.CronJob) (*batchbetav1.CronJob, error) {
+	log.Printf("creating cronjob [%s] in project [%s]", cronJob.Name, project)
+	cronClient := createCronClient(project)
+	result, err := cronClient.Create(cronJob)
+	if err != nil {
+		log.Fatalf("failed to create cronjob [%s] in project [%s], error: [%s]", cronJob.Name, project, err.Error())
+	}
+	log.Printf("cronjob [%s] in project [%s] created", result.GetObjectMeta().GetName(), project)
+	return result, nil
 }
 
-// ListCronJob list cronjob
-func ListCronJob() {
-	cronClient.List(metav1.ListOptions{})
+/*
+ListCronJob list cron job
+@param project
+@param fieldSelector
+@param labelSelector
+@param limit
+**/
+func ListCronJob(project, fieldSelector, labelSelector string, limit int64) (*batchbetav1.CronJobList, error) {
+	log.Printf("listing cronjob in project [%s]", project)
+	cronClient := createCronClient(project)
+	listOptions := metav1.ListOptions{
+		Limit:         limit,
+		FieldSelector: fieldSelector,
+		LabelSelector: labelSelector,
+	}
+	list, err := cronClient.List(listOptions)
+	if err != nil {
+		log.Fatalf("cannot get cronjob list of [%s], error: [%s]", project, err.Error())
+		return nil, err
+	}
+
+	return list, nil
 }
 
-// UpdateCronJob update cronjob
-func UpdateCronJob() {
-	cronClient.Update(cornExample)
+/*
+GetCronJob get cron job
+@param project
+@param cronName
+**/
+func GetCronJob(project, cronName string) (*batchbetav1.CronJob, error) {
+	log.Printf("getting cronjob [%s] in project [%s]", cronName, project)
+	cronClient := createCronClient(project)
+	result, err := cronClient.Get(cronName, metav1.GetOptions{})
+	if err != nil {
+		log.Fatalf("failed to get latest version of cronjob [%s] in project [%s], error: [%s]", cronName, project, err.Error())
+		return nil, err
+	}
+	return result, nil
 }
 
-// DeleteCronJob delete cronjob
-func DeleteCronJob() {
-	cronClient.Delete("", &metav1.DeleteOptions{})
+/*
+UpdateCronJob update cron job
+@param project
+@param cronjob
+**/
+func UpdateCronJob(project string, cronJob *batchbetav1.CronJob) (*batchbetav1.CronJob, error) {
+	log.Printf("updating cronjob [%s] in project [%s]", cronJob.Name, project)
+	var updatedCron *batchbetav1.CronJob
+	cronClient := createCronClient(project)
+	err := retry.RetryOnConflict(retry.DefaultRetry, func() error {
+		result, err := GetCronJob(project, cronJob.Name)
+		if err != nil {
+			log.Fatalf("failed to update cronjob [%s] in project [%s], failed to get lastest version of CronJob [%s], error: [%s]", cronJob.Name, project, err.Error(), cronJob.Name)
+			return err
+		}
+		// TODO: compare and replace
+
+		updatedCron, err = cronClient.Update(result)
+		return err
+	})
+	if err != nil {
+		log.Fatalf("failed to update cronjob [%s] in project [%s], error: [%s]", cronJob.Name, project, err.Error())
+		return nil, err
+	}
+	log.Printf("cronjob [%s] updated in project [%s]...", cronJob.Name, project)
+	return updatedCron, nil
+}
+
+/*
+DeleteCronJob delete cron job
+@param project
+@param cronName
+**/
+func DeleteCronJob(project, cronName string) error {
+	log.Printf("deleting cronJob [%s] in project [%s]", cronName, project)
+	deletePolicy := metav1.DeletePropagationForeground
+	cronClient := createCronClient(project)
+	if err := cronClient.Delete(cronName, &metav1.DeleteOptions{
+		PropagationPolicy: &deletePolicy,
+	}); err != nil {
+		log.Fatalf("failed to delete cronjob [%s] in project [%s], error: [%s]", cronName, project, err.Error())
+		return err
+	}
+	log.Fatalf("cronjob [%s] in project [%s] deleted", cronName, project)
+	return nil
 }
