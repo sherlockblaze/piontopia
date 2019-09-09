@@ -7,52 +7,51 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
-
 	"github.com/unrolled/render"
-	appsv1 "k8s.io/api/apps/v1"
+	batchbetav1 "k8s.io/api/batch/v1beta1"
 )
 
 /*
-CreateDeployment create deployment api
+CreateCronJob create cronjob api
 @param formatter
 **/
-func CreateDeployment(formatter *render.Render) http.HandlerFunc {
+func CreateCronJob(formatter *render.Render) http.HandlerFunc {
 	return func(w http.ResponseWriter, req *http.Request) {
 		vars := mux.Vars(req)
 		project := vars["project"]
 		body, _ := ioutil.ReadAll(req.Body)
-		var deployment *appsv1.Deployment
-		json.Unmarshal(body, &deployment)
-		createdDeployment, _ := client.CreateDeployment(project, deployment)
+		var cronJob *batchbetav1.CronJob
+		json.Unmarshal(body, &cronJob)
+		createdCronJob, _ := client.CreateCronJob(project, cronJob)
 		formatter.JSON(w, http.StatusCreated,
 			struct {
-				Deployment appsv1.Deployment
-			}{*createdDeployment})
+				CronJob batchbetav1.CronJob
+			}{*createdCronJob})
 	}
 }
 
 /*
-GetDeployment get deployment api
+GetCronJob get cronjob api
 @param formatter
 **/
-func GetDeployment(formatter *render.Render) http.HandlerFunc {
+func GetCronJob(formatter *render.Render) http.HandlerFunc {
 	return func(w http.ResponseWriter, req *http.Request) {
 		vars := mux.Vars(req)
 		project := vars["project"]
-		deploymentName := vars["deploymentName"]
-		deployment, _ := client.GetDeployment(project, deploymentName)
+		cronJobName := vars["cronJobName"]
+		cronJob, _ := client.GetCronJob(project, cronJobName)
 		formatter.JSON(w, http.StatusOK,
 			struct {
-				Deployment appsv1.Deployment
-			}{*deployment})
+				CronJob batchbetav1.CronJob
+			}{*cronJob})
 	}
 }
 
 /*
-UpdateDeployment update deployment api
+UpdateCronJob update cronjob api
 @param formatter
 **/
-func UpdateDeployment(formatter *render.Render) http.HandlerFunc {
+func UpdateCronJob(formatter *render.Render) http.HandlerFunc {
 	return func(w http.ResponseWriter, req *http.Request) {
 		formatter.JSON(w, http.StatusOK,
 			struct {
@@ -62,24 +61,24 @@ func UpdateDeployment(formatter *render.Render) http.HandlerFunc {
 }
 
 /*
-DeleteDeployment delete deployment api
+DeleteCronJob delete cronjob api
 @param formatter
 **/
-func DeleteDeployment(formatter *render.Render) http.HandlerFunc {
+func DeleteCronJob(formatter *render.Render) http.HandlerFunc {
 	return func(w http.ResponseWriter, req *http.Request) {
 		vars := mux.Vars(req)
 		project := vars["project"]
-		deploymentName := vars["deploymentName"]
-		client.DeleteDeployment(project, deploymentName)
+		cronJobName := vars["cronJobName"]
+		client.DeleteJob(project, cronJobName)
 		formatter.JSON(w, http.StatusOK, struct{}{})
 	}
 }
 
 /*
-ListDeployment list deployment api
+ListCronJob list cronjob api
 @param formatter
 **/
-func ListDeployment(formatter *render.Render) http.HandlerFunc {
+func ListCronJob(formatter *render.Render) http.HandlerFunc {
 	return func(w http.ResponseWriter, req *http.Request) {
 		vars := mux.Vars(req)
 		project := vars["project"]
@@ -98,14 +97,14 @@ func ListDeployment(formatter *render.Render) http.HandlerFunc {
 		if reqParam["limit"] != nil {
 			limit = reqParam["limit"].(int64)
 		}
-		list, _ := client.ListDeployment(project, fieldSelector, labelSelector, limit)
-		var deploymentList []appsv1.Deployment
+		list, _ := client.ListCronJob(project, fieldSelector, labelSelector, limit)
+		var cronJobList []batchbetav1.CronJob
 		if list != nil {
-			deploymentList = list.Items
+			cronJobList = list.Items
 		}
 		formatter.JSON(w, http.StatusOK,
 			struct {
-				DeploymentList []appsv1.Deployment
-			}{deploymentList})
+				CronJobList []batchbetav1.CronJob
+			}{cronJobList})
 	}
 }

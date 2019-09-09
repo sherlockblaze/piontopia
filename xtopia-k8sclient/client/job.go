@@ -27,7 +27,8 @@ func CreateJob(project string, job *batchv1.Job) (*batchv1.Job, error) {
 	jobClient := createJobClient(project)
 	result, err := jobClient.Create(job)
 	if err != nil {
-		log.Fatalf("failed to create job [%s] in project [%s], error: [%s]", job.Name, project, err.Error())
+		log.Printf("failed to create job [%s] in project [%s], error: [%s]", job.Name, project, err.Error())
+		return nil, err
 	}
 	log.Printf("job [%s] created in project [%s]", result.GetObjectMeta().GetName(), project)
 	return result, nil
@@ -50,7 +51,7 @@ func ListJob(project, fieldSelector, labelSelector string, limit int64) (*batchv
 	}
 	list, err := jobClient.List(listOptions)
 	if err != nil {
-		log.Fatalf("cannot get job list in project [%s], error: %s", project, err.Error())
+		log.Printf("cannot get job list in project [%s], error: %s", project, err.Error())
 		return nil, err
 	}
 	return list, nil
@@ -66,7 +67,7 @@ func GetJob(project, jobName string) (*batchv1.Job, error) {
 	jobClient := createJobClient(project)
 	result, err := jobClient.Get(jobName, metav1.GetOptions{})
 	if err != nil {
-		log.Fatalf("failed to get latest version of job [%s] in project [%s], error: [%s]", jobName, project, err.Error())
+		log.Printf("failed to get latest version of job [%s] in project [%s], error: [%s]", jobName, project, err.Error())
 		return nil, err
 	}
 	return result, nil
@@ -84,7 +85,7 @@ func UpdateJob(project string, job *batchv1.Job) (*batchv1.Job, error) {
 	err := retry.RetryOnConflict(retry.DefaultRetry, func() error {
 		result, err := GetJob(project, job.Name)
 		if err != nil {
-			log.Fatalf("failed to update job [%s] in project [%s], failed to get lastest version of job [%s], error: [%s]", job.Name, project, job.Name, err.Error())
+			log.Printf("failed to update job [%s] in project [%s], failed to get lastest version of job [%s], error: [%s]", job.Name, project, job.Name, err.Error())
 			return err
 		}
 		// TODO: compare and replace
@@ -93,7 +94,7 @@ func UpdateJob(project string, job *batchv1.Job) (*batchv1.Job, error) {
 		return err
 	})
 	if err != nil {
-		log.Fatalf("failed to update job [%s] in project [%s], error: [%s]", job, project, err.Error())
+		log.Printf("failed to update job [%s] in project [%s], error: [%s]", job, project, err.Error())
 		return nil, err
 	}
 	log.Printf("job [%s] in project [%s] updated", updatedJob.Name, project)
@@ -112,9 +113,9 @@ func DeleteJob(project, jobName string) error {
 	if err := jobClient.Delete(jobName, &metav1.DeleteOptions{
 		PropagationPolicy: &deletePolicy,
 	}); err != nil {
-		log.Fatalf("failed to delete job [%s] in project [%s], error: [%s]", jobName, project, err.Error())
+		log.Printf("failed to delete job [%s] in project [%s], error: [%s]", jobName, project, err.Error())
 		return err
 	}
-	log.Fatalf("job [%s] in project [%s] deleted", jobName, project)
+	log.Printf("job [%s] in project [%s] deleted", jobName, project)
 	return nil
 }

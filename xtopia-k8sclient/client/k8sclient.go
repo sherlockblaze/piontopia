@@ -1,17 +1,50 @@
 package client
 
 import (
+	"flag"
+	"path/filepath"
+
+	"k8s.io/client-go/kubernetes"
 	k8s "k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
+	"k8s.io/client-go/tools/clientcmd"
+	"k8s.io/client-go/util/homedir"
 )
 
 var k8sclient *k8s.Clientset
 
 func init() {
-	k8sclient = newClient()
+	k8sclient = newClient(false)
 }
 
-func newClient() *k8s.Clientset {
+func newClient(flag bool) *k8s.Clientset {
+	if flag {
+		return newInClusterClient()
+	}
+	return newMasterClient()
+}
+
+func newMasterClient() *k8s.Clientset {
+	var kubeconfig *string
+	if home := homedir.HomeDir(); home != "" {
+		kubeconfig = flag.String("kubeconfig", filepath.Join(home, ".kube", "config"), "(optional) absolute path to the kubeconfig file")
+	} else {
+		kubeconfig = flag.String("kubeconfig", "", "absolute path to the kubeconfig file")
+	}
+	flag.Parse()
+
+	config, err := clientcmd.BuildConfigFromFlags("", *kubeconfig)
+	if err != nil {
+		panic(err)
+	}
+	clientset, err := kubernetes.NewForConfig(config)
+	if err != nil {
+		panic(err)
+	}
+	return clientset
+}
+
+func newInClusterClient() *k8s.Clientset {
 	config, err := rest.InClusterConfig()
 	if err != nil {
 		panic(err)

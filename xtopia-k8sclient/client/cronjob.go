@@ -27,7 +27,8 @@ func CreateCronJob(project string, cronJob *batchbetav1.CronJob) (*batchbetav1.C
 	cronClient := createCronClient(project)
 	result, err := cronClient.Create(cronJob)
 	if err != nil {
-		log.Fatalf("failed to create cronjob [%s] in project [%s], error: [%s]", cronJob.Name, project, err.Error())
+		log.Printf("failed to create cronjob [%s] in project [%s], error: [%s]", cronJob.Name, project, err.Error())
+		return nil, err
 	}
 	log.Printf("cronjob [%s] in project [%s] created", result.GetObjectMeta().GetName(), project)
 	return result, nil
@@ -50,7 +51,7 @@ func ListCronJob(project, fieldSelector, labelSelector string, limit int64) (*ba
 	}
 	list, err := cronClient.List(listOptions)
 	if err != nil {
-		log.Fatalf("cannot get cronjob list of [%s], error: [%s]", project, err.Error())
+		log.Printf("cannot get cronjob list of [%s], error: [%s]", project, err.Error())
 		return nil, err
 	}
 
@@ -67,7 +68,7 @@ func GetCronJob(project, cronName string) (*batchbetav1.CronJob, error) {
 	cronClient := createCronClient(project)
 	result, err := cronClient.Get(cronName, metav1.GetOptions{})
 	if err != nil {
-		log.Fatalf("failed to get latest version of cronjob [%s] in project [%s], error: [%s]", cronName, project, err.Error())
+		log.Printf("failed to get latest version of cronjob [%s] in project [%s], error: [%s]", cronName, project, err.Error())
 		return nil, err
 	}
 	return result, nil
@@ -85,7 +86,7 @@ func UpdateCronJob(project string, cronJob *batchbetav1.CronJob) (*batchbetav1.C
 	err := retry.RetryOnConflict(retry.DefaultRetry, func() error {
 		result, err := GetCronJob(project, cronJob.Name)
 		if err != nil {
-			log.Fatalf("failed to update cronjob [%s] in project [%s], failed to get lastest version of CronJob [%s], error: [%s]", cronJob.Name, project, err.Error(), cronJob.Name)
+			log.Printf("failed to update cronjob [%s] in project [%s], failed to get lastest version of CronJob [%s], error: [%s]", cronJob.Name, project, err.Error(), cronJob.Name)
 			return err
 		}
 		// TODO: compare and replace
@@ -94,7 +95,7 @@ func UpdateCronJob(project string, cronJob *batchbetav1.CronJob) (*batchbetav1.C
 		return err
 	})
 	if err != nil {
-		log.Fatalf("failed to update cronjob [%s] in project [%s], error: [%s]", cronJob.Name, project, err.Error())
+		log.Printf("failed to update cronjob [%s] in project [%s], error: [%s]", cronJob.Name, project, err.Error())
 		return nil, err
 	}
 	log.Printf("cronjob [%s] updated in project [%s]...", cronJob.Name, project)
@@ -113,9 +114,9 @@ func DeleteCronJob(project, cronName string) error {
 	if err := cronClient.Delete(cronName, &metav1.DeleteOptions{
 		PropagationPolicy: &deletePolicy,
 	}); err != nil {
-		log.Fatalf("failed to delete cronjob [%s] in project [%s], error: [%s]", cronName, project, err.Error())
+		log.Printf("failed to delete cronjob [%s] in project [%s], error: [%s]", cronName, project, err.Error())
 		return err
 	}
-	log.Fatalf("cronjob [%s] in project [%s] deleted", cronName, project)
+	log.Printf("cronjob [%s] in project [%s] deleted", cronName, project)
 	return nil
 }

@@ -1,7 +1,7 @@
 package main
 
 import (
-	// _ "k8s-client/client"
+	_ "k8s-client/client"
 	"k8s-client/service"
 	"os"
 )

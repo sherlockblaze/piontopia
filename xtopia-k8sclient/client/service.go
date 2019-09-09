@@ -27,7 +27,8 @@ func CreateService(project string, service *apiv1.Service) (*apiv1.Service, erro
 	serviceClient := createServiceClient(project)
 	job, err := serviceClient.Create(service)
 	if err != nil {
-		log.Fatalf("failed to create service [%s] in project [%s], error: [%s]", service.Name, project, err.Error())
+		log.Printf("failed to create service [%s] in project [%s], error: [%s]", service.Name, project, err.Error())
+		return nil, err
 	}
 	log.Printf("service [%s] in project [%s] created", service.Name, project)
 	return job, nil
@@ -50,7 +51,7 @@ func ListService(project, fieldSelector, labelSelector string, limit int64) (*ap
 	}
 	list, err := serviceClient.List(listOptions)
 	if err != nil {
-		log.Fatalf("cannot get job list in project [%s], error: %s", project, err.Error())
+		log.Printf("cannot get job list in project [%s], error: %s", project, err.Error())
 		return nil, err
 	}
 	return list, nil
@@ -66,7 +67,7 @@ func GetService(project, serviceName string) (*apiv1.Service, error) {
 	serviceClient := createServiceClient(project)
 	result, err := serviceClient.Get(serviceName, metav1.GetOptions{})
 	if err != nil {
-		log.Fatalf("failed to get latest version of service [%s] in project [%s], error: [%s]", serviceName, project, err.Error())
+		log.Printf("failed to get latest version of service [%s] in project [%s], error: [%s]", serviceName, project, err.Error())
 		return nil, err
 	}
 	return result, nil
@@ -84,7 +85,7 @@ func UpdateService(project string, service *apiv1.Service) (*apiv1.Service, erro
 	err := retry.RetryOnConflict(retry.DefaultRetry, func() error {
 		result, err := GetService(project, service.Name)
 		if err != nil {
-			log.Fatalf("failed to update service [%s] in project [%s], failed to get lastest version of service [%s], error: [%s]", service.Name, project, service.Name, err.Error())
+			log.Printf("failed to update service [%s] in project [%s], failed to get lastest version of service [%s], error: [%s]", service.Name, project, service.Name, err.Error())
 			return err
 		}
 		// TODO: compare and replace
@@ -93,7 +94,7 @@ func UpdateService(project string, service *apiv1.Service) (*apiv1.Service, erro
 		return err
 	})
 	if err != nil {
-		log.Fatalf("failed to update service [%s] in project [%s], error: [%s]", service.Name, project, err.Error())
+		log.Printf("failed to update service [%s] in project [%s], error: [%s]", service.Name, project, err.Error())
 		return nil, err
 	}
 	log.Printf("service [%s] in project [%s] updated", service.Name, project)
@@ -112,9 +113,9 @@ func DeleteService(project, serviceName string) error {
 	if err := serviceClient.Delete(serviceName, &metav1.DeleteOptions{
 		PropagationPolicy: &deletePolicy,
 	}); err != nil {
-		log.Fatalf("failed to delete service [%s] in project [%s], error: [%s]", serviceName, project, err.Error())
+		log.Printf("failed to delete service [%s] in project [%s], error: [%s]", serviceName, project, err.Error())
 		return err
 	}
-	log.Fatalf("service [%s] in project [%s] deleted", serviceName, project)
+	log.Printf("service [%s] in project [%s] deleted", serviceName, project)
 	return nil
 }
