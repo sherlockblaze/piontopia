@@ -22,11 +22,19 @@ func CreateJob(formatter *render.Render) http.HandlerFunc {
 		body, _ := ioutil.ReadAll(req.Body)
 		var job *batchv1.Job
 		json.Unmarshal(body, &job)
-		createdJob, _ := client.CreateJob(project, job)
-		formatter.JSON(w, http.StatusCreated,
-			struct {
-				Job batchv1.Job
-			}{*createdJob})
+		createdJob, err := client.CreateJob(project, job)
+		status := http.StatusCreated
+		res := make(map[string]interface{})
+		res["code"] = 0
+		if err != nil {
+			status = http.StatusBadRequest
+			res["code"] = -1
+			res["error"] = err.Error()
+		}
+		res["result"] = createdJob
+		w.WriteHeader(status)
+		w.Header().Add("Content-Type", "application/json")
+		formatter.JSON(w, status, res)
 	}
 }
 
@@ -39,11 +47,19 @@ func GetJob(formatter *render.Render) http.HandlerFunc {
 		vars := mux.Vars(req)
 		project := vars["project"]
 		jobName := vars["jobName"]
-		job, _ := client.GetJob(project, jobName)
-		formatter.JSON(w, http.StatusOK,
-			struct {
-				Job batchv1.Job
-			}{*job})
+		job, err := client.GetJob(project, jobName)
+		status := http.StatusCreated
+		res := make(map[string]interface{})
+		res["code"] = 0
+		if err != nil {
+			status = http.StatusBadRequest
+			res["code"] = -1
+			res["error"] = err.Error()
+		}
+		res["result"] = job
+		w.WriteHeader(status)
+		w.Header().Add("Content-Type", "application/json")
+		formatter.JSON(w, status, res)
 	}
 }
 
@@ -53,10 +69,24 @@ UpdateJob update job api
 **/
 func UpdateJob(formatter *render.Render) http.HandlerFunc {
 	return func(w http.ResponseWriter, req *http.Request) {
-		formatter.JSON(w, http.StatusOK,
-			struct {
-				Test string
-			}{"This is a Test"})
+		vars := mux.Vars(req)
+		project := vars["project"]
+		body, _ := ioutil.ReadAll(req.Body)
+		var job *batchv1.Job
+		json.Unmarshal(body, &job)
+		updatedJob, err := client.UpdateJob(project, job)
+		status := http.StatusOK
+		res := make(map[string]interface{})
+		res["code"] = 0
+		if err != nil {
+			status = http.StatusBadRequest
+			res["error"] = err.Error()
+			res["code"] = -1
+		}
+		res["result"] = updatedJob
+		w.WriteHeader(status)
+		w.Header().Set("Content-Type", "application/json")
+		formatter.JSON(w, status, res)
 	}
 }
 
@@ -69,8 +99,18 @@ func DeleteJob(formatter *render.Render) http.HandlerFunc {
 		vars := mux.Vars(req)
 		project := vars["project"]
 		jobName := vars["jobName"]
-		client.DeleteJob(project, jobName)
-		formatter.JSON(w, http.StatusOK, struct{}{})
+		err := client.DeleteJob(project, jobName)
+		status := http.StatusOK
+		res := make(map[string]interface{})
+		res["code"] = 0
+		if err != nil {
+			status = http.StatusBadRequest
+			res["code"] = -1
+			res["error"] = err.Error()
+		}
+		w.WriteHeader(status)
+		w.Header().Add("Content-Type", "application/json")
+		formatter.JSON(w, http.StatusOK, res)
 	}
 }
 
@@ -97,14 +137,21 @@ func ListJob(formatter *render.Render) http.HandlerFunc {
 		if reqParam["limit"] != nil {
 			limit = reqParam["limit"].(int64)
 		}
-		list, _ := client.ListJob(project, fieldSelector, labelSelector, limit)
-		var jobList []batchv1.Job
-		if list != nil {
-			jobList = list.Items
+		list, err := client.ListJob(project, fieldSelector, labelSelector, limit)
+		status := http.StatusOK
+		res := make(map[string]interface{})
+		res["code"] = 0
+		res["result"] = struct{}{}
+		if err != nil {
+			status = http.StatusBadRequest
+			res["code"] = -1
+			res["error"] = err.Error()
 		}
-		formatter.JSON(w, http.StatusOK,
-			struct {
-				JobList []batchv1.Job
-			}{jobList})
+		if list != nil {
+			res["result"] = list.Items
+		}
+		w.WriteHeader(status)
+		w.Header().Add("Content-Type", "application/json")
+		formatter.JSON(w, status, res)
 	}
 }

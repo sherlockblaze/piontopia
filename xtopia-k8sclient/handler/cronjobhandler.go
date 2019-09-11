@@ -22,11 +22,19 @@ func CreateCronJob(formatter *render.Render) http.HandlerFunc {
 		body, _ := ioutil.ReadAll(req.Body)
 		var cronJob *batchbetav1.CronJob
 		json.Unmarshal(body, &cronJob)
-		createdCronJob, _ := client.CreateCronJob(project, cronJob)
-		formatter.JSON(w, http.StatusCreated,
-			struct {
-				CronJob batchbetav1.CronJob
-			}{*createdCronJob})
+		createdCronJob, err := client.CreateCronJob(project, cronJob)
+		status := http.StatusCreated
+		res := make(map[string]interface{})
+		res["code"] = 0
+		if err != nil {
+			status = http.StatusBadRequest
+			res["code"] = -1
+			res["error"] = err.Error()
+		}
+		res["result"] = createdCronJob
+		w.WriteHeader(status)
+		w.Header().Add("Content-Type", "application/json")
+		formatter.JSON(w, status, res)
 	}
 }
 
@@ -39,11 +47,19 @@ func GetCronJob(formatter *render.Render) http.HandlerFunc {
 		vars := mux.Vars(req)
 		project := vars["project"]
 		cronJobName := vars["cronJobName"]
-		cronJob, _ := client.GetCronJob(project, cronJobName)
-		formatter.JSON(w, http.StatusOK,
-			struct {
-				CronJob batchbetav1.CronJob
-			}{*cronJob})
+		cronJob, err := client.GetCronJob(project, cronJobName)
+		status := http.StatusOK
+		res := make(map[string]interface{})
+		res["code"] = 0
+		if err != nil {
+			status = http.StatusBadRequest
+			res["code"] = -1
+			res["error"] = err.Error()
+		}
+		res["result"] = cronJob
+		w.WriteHeader(status)
+		w.Header().Add("Content-Type", "application/json")
+		formatter.JSON(w, status, res)
 	}
 }
 
@@ -53,10 +69,24 @@ UpdateCronJob update cronjob api
 **/
 func UpdateCronJob(formatter *render.Render) http.HandlerFunc {
 	return func(w http.ResponseWriter, req *http.Request) {
-		formatter.JSON(w, http.StatusOK,
-			struct {
-				Test string
-			}{"This is a Test"})
+		vars := mux.Vars(req)
+		project := vars["project"]
+		body, _ := ioutil.ReadAll(req.Body)
+		var cronJob *batchbetav1.CronJob
+		json.Unmarshal(body, &cronJob)
+		updatedCronJob, err := client.UpdateCronJob(project, cronJob)
+		status := http.StatusOK
+		res := make(map[string]interface{})
+		res["code"] = 0
+		if err != nil {
+			status = http.StatusBadRequest
+			res["error"] = err.Error()
+			res["code"] = -1
+		}
+		res["result"] = updatedCronJob
+		w.WriteHeader(status)
+		w.Header().Set("Content-Type", "application/json")
+		formatter.JSON(w, status, res)
 	}
 }
 
@@ -69,8 +99,18 @@ func DeleteCronJob(formatter *render.Render) http.HandlerFunc {
 		vars := mux.Vars(req)
 		project := vars["project"]
 		cronJobName := vars["cronJobName"]
-		client.DeleteJob(project, cronJobName)
-		formatter.JSON(w, http.StatusOK, struct{}{})
+		err := client.DeleteJob(project, cronJobName)
+		status := http.StatusOK
+		res := make(map[string]interface{})
+		res["code"] = 0
+		if err != nil {
+			status = http.StatusBadRequest
+			res["error"] = err.Error()
+			res["code"] = -1
+		}
+		w.WriteHeader(status)
+		w.Header().Add("Content-Type", "application/json")
+		formatter.JSON(w, status, res)
 	}
 }
 
@@ -97,14 +137,21 @@ func ListCronJob(formatter *render.Render) http.HandlerFunc {
 		if reqParam["limit"] != nil {
 			limit = reqParam["limit"].(int64)
 		}
-		list, _ := client.ListCronJob(project, fieldSelector, labelSelector, limit)
-		var cronJobList []batchbetav1.CronJob
-		if list != nil {
-			cronJobList = list.Items
+		list, err := client.ListCronJob(project, fieldSelector, labelSelector, limit)
+		status := http.StatusOK
+		res := make(map[string]interface{})
+		res["code"] = 0
+		res["result"] = struct{}{}
+		if err != nil {
+			status = http.StatusBadRequest
+			res["error"] = err.Error()
+			res["code"] = -1
 		}
-		formatter.JSON(w, http.StatusOK,
-			struct {
-				CronJobList []batchbetav1.CronJob
-			}{cronJobList})
+		if list != nil {
+			res["result"] = list
+		}
+		w.WriteHeader(status)
+		w.Header().Add("Content-Type", "application/json")
+		formatter.JSON(w, status, res)
 	}
 }

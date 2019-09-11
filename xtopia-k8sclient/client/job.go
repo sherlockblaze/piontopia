@@ -1,10 +1,13 @@
 package client
 
 import (
+	"encoding/json"
 	"log"
 
 	batchv1 "k8s.io/api/batch/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/types"
+	"k8s.io/apimachinery/pkg/util/strategicpatch"
 	clientV1 "k8s.io/client-go/kubernetes/typed/batch/v1"
 	"k8s.io/client-go/util/retry"
 )
@@ -89,12 +92,27 @@ func UpdateJob(project string, job *batchv1.Job) (*batchv1.Job, error) {
 			return err
 		}
 		// TODO: compare and replace
+		oldData, err := json.Marshal(result)
+		if err != nil {
+			log.Printf("failed to update job [%s] in project [%s], error: [%s]", job.Name, project, err.Error())
+			return err
+		}
+		newData, err := json.Marshal(job)
+		if err != nil {
+			log.Printf("failed to update job [%s] in project [%s], error: [%s]", job.Name, project, err.Error())
+			return err
+		}
+		patchBytes, err := strategicpatch.CreateTwoWayMergePatch(oldData, newData, batchv1.Job{})
+		if err != nil {
+			log.Printf("failed to update job [%s] in project [%s], error: [%s]", job.Name, project, err.Error())
+			return err
+		}
 
-		updatedJob, err = jobClient.Update(result)
+		updatedJob, err = jobClient.Patch(job.Name, types.StrategicMergePatchType, patchBytes)
 		return err
 	})
 	if err != nil {
-		log.Printf("failed to update job [%s] in project [%s], error: [%s]", job, project, err.Error())
+		log.Printf("failed to update job [%s] in project [%s], error: [%s]", job.Name, project, err.Error())
 		return nil, err
 	}
 	log.Printf("job [%s] in project [%s] updated", updatedJob.Name, project)

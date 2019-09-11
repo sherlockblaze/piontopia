@@ -22,11 +22,19 @@ func CreateService(formatter *render.Render) http.HandlerFunc {
 		body, _ := ioutil.ReadAll(req.Body)
 		var service *apiv1.Service
 		json.Unmarshal(body, &service)
-		createdService, _ := client.CreateService(project, service)
-		formatter.JSON(w, http.StatusCreated,
-			struct {
-				Service apiv1.Service
-			}{*createdService})
+		createdService, err := client.CreateService(project, service)
+		status := http.StatusCreated
+		res := make(map[string]interface{})
+		res["code"] = 0
+		if err != nil {
+			status = http.StatusBadRequest
+			res["code"] = -1
+			res["error"] = err.Error()
+		}
+		res["result"] = createdService
+		w.WriteHeader(status)
+		w.Header().Add("Content-Type", "application/json")
+		formatter.JSON(w, status, res)
 	}
 }
 
@@ -39,11 +47,19 @@ func GetService(formatter *render.Render) http.HandlerFunc {
 		vars := mux.Vars(req)
 		project := vars["project"]
 		serviceName := vars["serviceName"]
-		service, _ := client.GetService(project, serviceName)
-		formatter.JSON(w, http.StatusOK,
-			struct {
-				Service apiv1.Service
-			}{*service})
+		service, err := client.GetService(project, serviceName)
+		status := http.StatusOK
+		res := make(map[string]interface{})
+		res["code"] = 0
+		if err != nil {
+			status = http.StatusBadRequest
+			res["code"] = -1
+			res["error"] = err.Error()
+		}
+		res["result"] = service
+		w.WriteHeader(status)
+		w.Header().Add("Content-Type", "application/json")
+		formatter.JSON(w, status, res)
 	}
 }
 
@@ -53,10 +69,24 @@ UpdateService update service api
 **/
 func UpdateService(formatter *render.Render) http.HandlerFunc {
 	return func(w http.ResponseWriter, req *http.Request) {
-		formatter.JSON(w, http.StatusOK,
-			struct {
-				Test string
-			}{"This is a Test"})
+		vars := mux.Vars(req)
+		project := vars["project"]
+		body, _ := ioutil.ReadAll(req.Body)
+		var service *apiv1.Service
+		json.Unmarshal(body, &service)
+		updatedService, err := client.UpdateService(project, service)
+		status := http.StatusOK
+		res := make(map[string]interface{})
+		res["code"] = 0
+		if err != nil {
+			status = http.StatusBadRequest
+			res["error"] = err.Error()
+			res["code"] = -1
+		}
+		res["result"] = updatedService
+		w.WriteHeader(status)
+		w.Header().Set("Content-Type", "application/json")
+		formatter.JSON(w, status, res)
 	}
 }
 
@@ -69,8 +99,18 @@ func DeleteService(formatter *render.Render) http.HandlerFunc {
 		vars := mux.Vars(req)
 		project := vars["project"]
 		serviceName := vars["serviceName"]
-		client.DeleteService(project, serviceName)
-		formatter.JSON(w, http.StatusOK, struct{}{})
+		err := client.DeleteService(project, serviceName)
+		status := http.StatusOK
+		res := make(map[string]interface{})
+		res["code"] = 0
+		if err != nil {
+			status = http.StatusBadRequest
+			res["code"] = -1
+			res["error"] = err.Error()
+		}
+		w.WriteHeader(status)
+		w.Header().Add("Content-Type", "application/json")
+		formatter.JSON(w, status, res)
 	}
 }
 
@@ -97,14 +137,19 @@ func ListService(formatter *render.Render) http.HandlerFunc {
 		if reqParam["limit"] != nil {
 			limit = reqParam["limit"].(int64)
 		}
-		list, _ := client.ListService(project, fieldSelector, labelSelector, limit)
-		var serviceList []apiv1.Service
-		if list != nil {
-			serviceList = list.Items
+		list, err := client.ListService(project, fieldSelector, labelSelector, limit)
+		status := http.StatusOK
+		res := make(map[string]interface{})
+		res["code"] = 0
+		res["result"] = struct{}{}
+		if err != nil {
+			status = http.StatusBadRequest
+			res["code"] = -1
+			res["error"] = err.Error()
 		}
-		formatter.JSON(w, http.StatusOK,
-			struct {
-				ServiceList []apiv1.Service
-			}{serviceList})
+		if list != nil {
+			res["result"] = list.Items
+		}
+		formatter.JSON(w, status, res)
 	}
 }

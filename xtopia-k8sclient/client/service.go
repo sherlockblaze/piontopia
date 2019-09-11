@@ -1,10 +1,13 @@
 package client
 
 import (
+	"encoding/json"
 	"log"
 
 	apiv1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/types"
+	"k8s.io/apimachinery/pkg/util/strategicpatch"
 	corev1 "k8s.io/client-go/kubernetes/typed/core/v1"
 	"k8s.io/client-go/util/retry"
 )
@@ -25,13 +28,13 @@ CreateService create a service
 func CreateService(project string, service *apiv1.Service) (*apiv1.Service, error) {
 	log.Printf("creating service [%s] in project [%s]", service.Name, project)
 	serviceClient := createServiceClient(project)
-	job, err := serviceClient.Create(service)
+	service, err := serviceClient.Create(service)
 	if err != nil {
 		log.Printf("failed to create service [%s] in project [%s], error: [%s]", service.Name, project, err.Error())
 		return nil, err
 	}
 	log.Printf("service [%s] in project [%s] created", service.Name, project)
-	return job, nil
+	return service, nil
 }
 
 /*
@@ -51,7 +54,7 @@ func ListService(project, fieldSelector, labelSelector string, limit int64) (*ap
 	}
 	list, err := serviceClient.List(listOptions)
 	if err != nil {
-		log.Printf("cannot get job list in project [%s], error: %s", project, err.Error())
+		log.Printf("cannot get service list in project [%s], error: %s", project, err.Error())
 		return nil, err
 	}
 	return list, nil
@@ -89,8 +92,23 @@ func UpdateService(project string, service *apiv1.Service) (*apiv1.Service, erro
 			return err
 		}
 		// TODO: compare and replace
+		oldData, err := json.Marshal(result)
+		if err != nil {
+			log.Printf("failed to update service [%s] in project [%s], error: [%s]", service.Name, project, err.Error())
+			return err
+		}
+		newData, err := json.Marshal(service)
+		if err != nil {
+			log.Printf("failed to update service [%s] in project [%s], error: [%s]", service.Name, project, err.Error())
+			return err
+		}
+		patchBytes, err := strategicpatch.CreateTwoWayMergePatch(oldData, newData, apiv1.Service{})
+		if err != nil {
+			log.Printf("failed to update service [%s] in project [%s], error: [%s]", service.Name, project, err.Error())
+			return err
+		}
 
-		updatedService, err = serviceClient.Update(result)
+		updatedService, err = serviceClient.Patch(service.Name, types.StrategicMergePatchType, patchBytes)
 		return err
 	})
 	if err != nil {

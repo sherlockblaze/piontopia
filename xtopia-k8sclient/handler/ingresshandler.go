@@ -7,78 +7,32 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
+	betav1 "k8s.io/api/networking/v1beta1"
+
 	"github.com/unrolled/render"
-	v1 "k8s.io/api/core/v1"
 )
 
 /*
-CreateProject create project api
+CreateIngress create ingress api
 @param formatter
 **/
-func CreateProject(formatter *render.Render) http.HandlerFunc {
+func CreateIngress(formatter *render.Render) http.HandlerFunc {
 	return func(w http.ResponseWriter, req *http.Request) {
+		vars := mux.Vars(req)
+		project := vars["project"]
 		body, _ := ioutil.ReadAll(req.Body)
-		var project *v1.Namespace
-		json.Unmarshal(body, &project)
-		createdProject, err := client.CreateProject(project)
+		var ingress *betav1.Ingress
+		json.Unmarshal(body, &ingress)
+		createdIngress, err := client.CreateIngress(project, ingress)
 		status := http.StatusCreated
 		res := make(map[string]interface{})
 		res["code"] = 0
 		if err != nil {
 			status = http.StatusBadRequest
-			res["code"] = -1
-			res["error"] = err.Error()
-		}
-		res["result"] = createdProject
-		w.WriteHeader(status)
-		w.Header().Add("Content-Type", "application/json")
-		formatter.JSON(w, status, res)
-	}
-}
-
-/*
-GetProject get project api
-@param fomatter
-**/
-func GetProject(formatter *render.Render) http.HandlerFunc {
-	return func(w http.ResponseWriter, req *http.Request) {
-		vars := mux.Vars(req)
-		projectName := vars["projectName"]
-		project, err := client.GetProject(projectName)
-		status := http.StatusOK
-		res := make(map[string]interface{})
-		res["code"] = 0
-		if err != nil {
-			status = http.StatusBadRequest
-			res["code"] = -1
-			res["error"] = err.Error()
-		}
-		res["result"] = project
-		w.WriteHeader(status)
-		w.Header().Add("Content-Type", "application/json")
-		formatter.JSON(w, status, res)
-	}
-}
-
-/*
-UpdateProject update project api
-@param formatter
-**/
-func UpdateProject(formatter *render.Render) http.HandlerFunc {
-	return func(w http.ResponseWriter, req *http.Request) {
-		body, _ := ioutil.ReadAll(req.Body)
-		var project *v1.Namespace
-		json.Unmarshal(body, &project)
-		updatedProject, err := client.UpdateProject(project)
-		status := http.StatusOK
-		res := make(map[string]interface{})
-		res["code"] = 0
-		if err != nil {
-			status = http.StatusBadRequest
 			res["error"] = err.Error()
 			res["code"] = -1
 		}
-		res["result"] = updatedProject
+		res["result"] = createdIngress
 		w.WriteHeader(status)
 		w.Header().Set("Content-Type", "application/json")
 		formatter.JSON(w, status, res)
@@ -86,34 +40,89 @@ func UpdateProject(formatter *render.Render) http.HandlerFunc {
 }
 
 /*
-DeleteProject delete project api
+GetIngress get ingress api
 @param formatter
 **/
-func DeleteProject(formatter *render.Render) http.HandlerFunc {
+func GetIngress(formatter *render.Render) http.HandlerFunc {
 	return func(w http.ResponseWriter, req *http.Request) {
 		vars := mux.Vars(req)
-		projectName := vars["projectName"]
-		err := client.DeleteProject(projectName)
+		project := vars["project"]
+		ingressName := vars["ingressName"]
+		ingress, err := client.GetIngress(project, ingressName)
 		status := http.StatusOK
 		res := make(map[string]interface{})
 		res["code"] = 0
 		if err != nil {
 			status = http.StatusBadRequest
-			res["code"] = -1
 			res["error"] = err.Error()
+			res["code"] = -1
 		}
+		res["result"] = ingress
 		w.WriteHeader(status)
-		w.Header().Add("Content-Type", "application/json")
+		w.Header().Set("Content-Type", "application/json")
 		formatter.JSON(w, status, res)
 	}
 }
 
 /*
-ListProject list project api
+UpdateIngress update ingress api
 @param formatter
 **/
-func ListProject(formatter *render.Render) http.HandlerFunc {
+func UpdateIngress(formatter *render.Render) http.HandlerFunc {
 	return func(w http.ResponseWriter, req *http.Request) {
+		vars := mux.Vars(req)
+		project := vars["project"]
+		body, _ := ioutil.ReadAll(req.Body)
+		var ingress *betav1.Ingress
+		json.Unmarshal(body, &ingress)
+		updatedIngress, err := client.UpdateIngress(project, ingress)
+		status := http.StatusOK
+		res := make(map[string]interface{})
+		res["code"] = 0
+		if err != nil {
+			status = http.StatusBadRequest
+			res["error"] = err.Error()
+			res["code"] = -1
+		}
+		res["result"] = updatedIngress
+		w.WriteHeader(status)
+		w.Header().Set("Content-Type", "application/json")
+		formatter.JSON(w, status, res)
+	}
+}
+
+/*
+DeleteIngress delete ingress api
+@param formatter
+**/
+func DeleteIngress(formatter *render.Render) http.HandlerFunc {
+	return func(w http.ResponseWriter, req *http.Request) {
+		vars := mux.Vars(req)
+		project := vars["project"]
+		ingressName := vars["ingressName"]
+		err := client.DeleteIngress(project, ingressName)
+		status := http.StatusOK
+		res := make(map[string]interface{})
+		res["code"] = 0
+		if err != nil {
+			status = http.StatusBadRequest
+			res["error"] = err.Error()
+			res["code"] = -1
+		}
+		w.WriteHeader(status)
+		w.Header().Set("Content-Type", "application/json")
+		formatter.JSON(w, status, res)
+	}
+}
+
+/*
+ListIngress list ingress api
+@param formatter
+**/
+func ListIngress(formatter *render.Render) http.HandlerFunc {
+	return func(w http.ResponseWriter, req *http.Request) {
+		vars := mux.Vars(req)
+		project := vars["project"]
 		var reqParam map[string]interface{}
 		body, _ := ioutil.ReadAll(req.Body)
 		json.Unmarshal(body, &reqParam)
@@ -129,21 +138,21 @@ func ListProject(formatter *render.Render) http.HandlerFunc {
 		if reqParam["limit"] != nil {
 			limit = reqParam["limit"].(int64)
 		}
-		list, err := client.ListProject(fieldSelector, labelSelector, limit)
+		list, err := client.ListIngress(project, fieldSelector, labelSelector, limit)
 		status := http.StatusOK
 		res := make(map[string]interface{})
 		res["code"] = 0
 		res["result"] = struct{}{}
 		if err != nil {
 			status = http.StatusBadRequest
-			res["code"] = -1
 			res["error"] = err.Error()
+			res["code"] = -1
 		}
 		if list != nil {
 			res["result"] = list.Items
 		}
 		w.WriteHeader(status)
-		w.Header().Add("Content-Type", "application/json")
+		w.Header().Set("Content-Type", "application/json")
 		formatter.JSON(w, status, res)
 	}
 }

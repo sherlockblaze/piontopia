@@ -1,11 +1,15 @@
 package client
 
 import (
+	"encoding/json"
 	"log"
 
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/types"
+	"k8s.io/apimachinery/pkg/util/strategicpatch"
 	corev1 "k8s.io/client-go/kubernetes/typed/core/v1"
+	"k8s.io/client-go/util/retry"
 )
 
 /*
@@ -85,4 +89,46 @@ func ListProject(fieldSelector, labelSelector string, limit int64) (*v1.Namespac
 		return nil, err
 	}
 	return list, nil
+}
+
+/*
+UpdateProject update project
+@param project
+**/
+func UpdateProject(project *v1.Namespace) (*v1.Namespace, error) {
+	log.Printf("updating project [%s]", project)
+	nsClient := createNsClient()
+	var updatedProject *v1.Namespace
+	err := retry.RetryOnConflict(retry.DefaultRetry, func() error {
+		result, err := GetProject(project.Name)
+		if err != nil {
+			log.Printf("failed to update project [%s], failed to get lastest version of project [%s], error: [%s]", project.Name, project.Name, err.Error())
+			return err
+		}
+		// TODO: compare and replace
+		oldData, err := json.Marshal(result)
+		if err != nil {
+			log.Printf("failed to update project [%s], error: [%s]", project.Name, err.Error())
+			return err
+		}
+		newData, err := json.Marshal(project)
+		if err != nil {
+			log.Printf("failed to update project [%s], error: [%s]", project.Name, err.Error())
+			return err
+		}
+		patchBytes, err := strategicpatch.CreateTwoWayMergePatch(oldData, newData, v1.Namespace{})
+		if err != nil {
+			log.Printf("failed to update project [%s], error: [%s]", project.Name, err.Error())
+			return err
+		}
+
+		updatedProject, err = nsClient.Patch(project.Name, types.StrategicMergePatchType, patchBytes)
+		return err
+	})
+	if err != nil {
+		log.Printf("failed to update project [%s], error: [%s]", project.Name, err.Error())
+		return nil, err
+	}
+	log.Printf("project [%s] updated", project.Name)
+	return updatedProject, nil
 }

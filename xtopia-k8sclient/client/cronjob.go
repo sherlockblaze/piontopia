@@ -1,10 +1,13 @@
 package client
 
 import (
+	"encoding/json"
 	"log"
 
 	batchbetav1 "k8s.io/api/batch/v1beta1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/types"
+	"k8s.io/apimachinery/pkg/util/strategicpatch"
 	clientbetaV1 "k8s.io/client-go/kubernetes/typed/batch/v1beta1"
 	"k8s.io/client-go/util/retry"
 )
@@ -86,12 +89,26 @@ func UpdateCronJob(project string, cronJob *batchbetav1.CronJob) (*batchbetav1.C
 	err := retry.RetryOnConflict(retry.DefaultRetry, func() error {
 		result, err := GetCronJob(project, cronJob.Name)
 		if err != nil {
-			log.Printf("failed to update cronjob [%s] in project [%s], failed to get lastest version of CronJob [%s], error: [%s]", cronJob.Name, project, err.Error(), cronJob.Name)
+			log.Printf("failed to update cronjob [%s] in project [%s], failed to get lastest version of CronJob [%s], error: [%s]", cronJob.Name, project, cronJob.Name, err.Error())
 			return err
 		}
 		// TODO: compare and replace
-
-		updatedCron, err = cronClient.Update(result)
+		oldData, err := json.Marshal(result)
+		if err != nil {
+			log.Printf("failed to update cronjob [%s] in project [%s], error: [%s]", cronJob.Name, project, err.Error())
+			return err
+		}
+		newData, err := json.Marshal(cronJob)
+		if err != nil {
+			log.Printf("failed to update cronjob [%s] in project [%s], error: [%s]", cronJob.Name, project, err.Error())
+			return err
+		}
+		patchBytes, err := strategicpatch.CreateTwoWayMergePatch(oldData, newData, batchbetav1.CronJob{})
+		if err != nil {
+			log.Printf("failed to update cronjob [%s] in project [%s], error: [%s]", cronJob.Name, project, err.Error())
+			return err
+		}
+		updatedCron, err = cronClient.Patch(cronJob.Name, types.StrategicMergePatchType, patchBytes)
 		return err
 	})
 	if err != nil {

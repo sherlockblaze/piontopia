@@ -23,11 +23,19 @@ func CreateDeployment(formatter *render.Render) http.HandlerFunc {
 		body, _ := ioutil.ReadAll(req.Body)
 		var deployment *appsv1.Deployment
 		json.Unmarshal(body, &deployment)
-		createdDeployment, _ := client.CreateDeployment(project, deployment)
-		formatter.JSON(w, http.StatusCreated,
-			struct {
-				Deployment appsv1.Deployment
-			}{*createdDeployment})
+		createdDeployment, err := client.CreateDeployment(project, deployment)
+		status := http.StatusCreated
+		res := make(map[string]interface{})
+		res["code"] = 0
+		if err != nil {
+			status = http.StatusBadRequest
+			res["error"] = err.Error()
+			res["code"] = -1
+		}
+		res["result"] = createdDeployment
+		w.WriteHeader(status)
+		w.Header().Set("Content-Type", "application/json")
+		formatter.JSON(w, status, res)
 	}
 }
 
@@ -40,11 +48,19 @@ func GetDeployment(formatter *render.Render) http.HandlerFunc {
 		vars := mux.Vars(req)
 		project := vars["project"]
 		deploymentName := vars["deploymentName"]
-		deployment, _ := client.GetDeployment(project, deploymentName)
-		formatter.JSON(w, http.StatusOK,
-			struct {
-				Deployment appsv1.Deployment
-			}{*deployment})
+		deployment, err := client.GetDeployment(project, deploymentName)
+		status := http.StatusOK
+		res := make(map[string]interface{})
+		res["code"] = 0
+		if err != nil {
+			status = http.StatusBadRequest
+			res["error"] = err.Error()
+			res["code"] = -1
+		}
+		res["result"] = deployment
+		w.WriteHeader(status)
+		w.Header().Set("Content-Type", "application/json")
+		formatter.JSON(w, status, res)
 	}
 }
 
@@ -54,10 +70,24 @@ UpdateDeployment update deployment api
 **/
 func UpdateDeployment(formatter *render.Render) http.HandlerFunc {
 	return func(w http.ResponseWriter, req *http.Request) {
-		formatter.JSON(w, http.StatusOK,
-			struct {
-				Test string
-			}{"This is a Test"})
+		vars := mux.Vars(req)
+		project := vars["project"]
+		body, _ := ioutil.ReadAll(req.Body)
+		var deployment *appsv1.Deployment
+		json.Unmarshal(body, &deployment)
+		updatedDeployment, err := client.UpdateDeployment(project, deployment)
+		status := http.StatusOK
+		res := make(map[string]interface{})
+		res["code"] = 0
+		if err != nil {
+			status = http.StatusBadRequest
+			res["error"] = err.Error()
+			res["code"] = -1
+		}
+		res["result"] = updatedDeployment
+		w.WriteHeader(status)
+		w.Header().Set("Content-Type", "application/json")
+		formatter.JSON(w, status, res)
 	}
 }
 
@@ -70,8 +100,18 @@ func DeleteDeployment(formatter *render.Render) http.HandlerFunc {
 		vars := mux.Vars(req)
 		project := vars["project"]
 		deploymentName := vars["deploymentName"]
-		client.DeleteDeployment(project, deploymentName)
-		formatter.JSON(w, http.StatusOK, struct{}{})
+		err := client.DeleteDeployment(project, deploymentName)
+		status := http.StatusOK
+		res := make(map[string]interface{})
+		res["code"] = 0
+		if err != nil {
+			status = http.StatusBadRequest
+			res["error"] = err.Error()
+			res["code"] = -1
+		}
+		w.WriteHeader(status)
+		w.Header().Set("Content-Type", "application/json")
+		formatter.JSON(w, status, res)
 	}
 }
 
@@ -98,14 +138,21 @@ func ListDeployment(formatter *render.Render) http.HandlerFunc {
 		if reqParam["limit"] != nil {
 			limit = reqParam["limit"].(int64)
 		}
-		list, _ := client.ListDeployment(project, fieldSelector, labelSelector, limit)
-		var deploymentList []appsv1.Deployment
-		if list != nil {
-			deploymentList = list.Items
+		list, err := client.ListDeployment(project, fieldSelector, labelSelector, limit)
+		status := http.StatusOK
+		res := make(map[string]interface{})
+		res["code"] = 0
+		res["result"] = struct{}{}
+		if err != nil {
+			status = http.StatusBadRequest
+			res["error"] = err.Error()
+			res["code"] = -1
 		}
-		formatter.JSON(w, http.StatusOK,
-			struct {
-				DeploymentList []appsv1.Deployment
-			}{deploymentList})
+		if list != nil {
+			res["result"] = list.Items
+		}
+		w.WriteHeader(status)
+		w.Header().Set("Content-Type", "application/json")
+		formatter.JSON(w, status, res)
 	}
 }

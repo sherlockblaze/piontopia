@@ -28,4 +28,6 @@ func initRoutes(mx *mux.Router, formatter *render.Render) {
 	initServiceRoutes(mx, formatter)
 	initJobRoutes(mx, formatter)
 	initCronJobRoutes(mx, formatter)
+	initIngressRoutes(mx, formatter)
+	initSecretRoutes(mx, formatter)
 }

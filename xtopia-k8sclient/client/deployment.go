@@ -1,10 +1,13 @@
 package client
 
 import (
+	"encoding/json"
 	"log"
 
 	appsv1 "k8s.io/api/apps/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/types"
+	"k8s.io/apimachinery/pkg/util/strategicpatch"
 	clientv1 "k8s.io/client-go/kubernetes/typed/apps/v1"
 	"k8s.io/client-go/util/retry"
 )
@@ -95,7 +98,22 @@ func UpdateDeployment(project string, deployment *appsv1.Deployment) (*appsv1.De
 			return err
 		}
 		// TODO: compare and replace
-		updatedDeployment, err = deploymentsClient.Update(result)
+		oldData, err := json.Marshal(result)
+		if err != nil {
+			log.Printf("failed to update deployment [%s] in project [%s], error: [%s]", deployment.Name, project, err.Error())
+			return err
+		}
+		newData, err := json.Marshal(deployment)
+		if err != nil {
+			log.Printf("failed to update deployment [%s] in project [%s], error: [%s]", deployment.Name, project, err.Error())
+			return err
+		}
+		patchBytes, err := strategicpatch.CreateTwoWayMergePatch(oldData, newData, appsv1.Deployment{})
+		if err != nil {
+			log.Printf("failed to update deployment [%s] in project [%s], error: [%s]", deployment.Name, project, err.Error())
+			return err
+		}
+		updatedDeployment, err = deploymentsClient.Patch(deployment.Name, types.StrategicMergePatchType, patchBytes)
 		return err
 	})
 	if err != nil {
