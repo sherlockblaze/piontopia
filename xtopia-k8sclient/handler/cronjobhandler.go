@@ -148,7 +148,7 @@ func ListCronJob(formatter *render.Render) http.HandlerFunc {
 			res["code"] = -1
 		}
 		if list != nil {
-			res["result"] = list
+			res["result"] = list.Items
 		}
 		w.WriteHeader(status)
 		w.Header().Add("Content-Type", "application/json")
